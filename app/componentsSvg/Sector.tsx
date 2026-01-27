@@ -1,4 +1,4 @@
-import Svg, { Path } from "react-native-svg";
+import { Path } from "react-native-svg";
 import computeSector from "./utils/computeSector";
 
 type SectorProps = {
@@ -14,6 +14,17 @@ type SectorProps = {
   radius: number;
   /**Color fill */
   fill: string;
+};
+
+type SectorLineProps = {
+  /** Drawing startpoint x */
+  startX: number;
+  /** Drawing startpoint y */
+  startY: number;
+  /**Line endpoint x */
+  lineX: number;
+  /**Line endpoint y */
+  lineY: number;
 };
 
 export default function Sector({
@@ -45,12 +56,24 @@ export default function Sector({
     arcEndY,
   );
   return (
-    <Svg width={400} height={400}>
+    <>
       <Path
-        d={`M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z `}
+        d={`M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z M${startX} ${startY} l${lineX} ${-lineY} `}
         stroke="black"
+        strokeWidth={radius / 100}
         fill={fill}
       />
-    </Svg>
+    </>
+  );
+}
+
+export function SectorLine({ startX, startY, lineX, lineY }: SectorLineProps) {
+  return (
+    <Path
+      d={`M${startX} ${startY} l${lineX} ${-lineY} `}
+      stroke="black"
+      strokeWidth={5}
+      fill={"none"}
+    />
   );
 }
