@@ -1,8 +1,6 @@
 //Helper function to calculate sector parameters
 
 export default function computeSector(
-  startX: number,
-  startY: number,
   /**0-360 */
   startAngle: number,
   /**0-360 */
