@@ -1,8 +1,13 @@
+//Helper function to calculate sector parameters
+
 export default function computeSector(
   startX: number,
   startY: number,
+  /**0-360 */
   startAngle: number,
+  /**0-360 */
   endAngle: number,
+  /**Sector size */
   radius: number,
 ) {
   let startAngleRad = convertToRad(startAngle);
@@ -24,6 +29,7 @@ function convertToRad(angle: number) {
   return (angle * Math.PI) / 180;
 }
 
+//Converts limit values to 0
 function isZero(num: number) {
   const EPSILON = 1e-10;
   num = Math.abs(num) < EPSILON ? 0 : num;
