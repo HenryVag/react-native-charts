@@ -25,8 +25,6 @@ export default function Sector({
   fill,
 }: SectorProps) {
   let { lineX, lineY, largeArcFlag, arcEndX, arcEndY } = computeSector(
-    startX,
-    startY,
     startAngle,
     endAngle,
     radius,
