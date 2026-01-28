@@ -25,6 +25,8 @@ type SectorLineProps = {
   lineX: number;
   /**Line endpoint y */
   lineY: number;
+  /**Radius for strokeWdth calc */
+  radius: number;
 };
 
 export default function Sector({
@@ -41,20 +43,6 @@ export default function Sector({
     radius,
   );
 
-  console.log(
-    startX,
-    startY,
-    "lineX:",
-    lineX,
-    "lineY:",
-    lineY,
-    "radius:",
-    radius,
-    "arcEndX:",
-    arcEndX,
-    "arcEndY:",
-    arcEndY,
-  );
   return (
     <>
       <Path
@@ -67,12 +55,18 @@ export default function Sector({
   );
 }
 
-export function SectorLine({ startX, startY, lineX, lineY }: SectorLineProps) {
+export function SectorLine({
+  startX,
+  startY,
+  lineX,
+  lineY,
+  radius,
+}: SectorLineProps) {
   return (
     <Path
       d={`M${startX} ${startY} l${lineX} ${-lineY} `}
       stroke="black"
-      strokeWidth={5}
+      strokeWidth={radius * 0.0375}
       fill={"none"}
     />
   );
