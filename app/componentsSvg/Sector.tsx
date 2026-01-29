@@ -14,6 +14,12 @@ type SectorProps = {
   radius: number;
   /**Color fill */
   fill: string;
+  /**Displayed data */
+  label?: number | string;
+  showLabels: boolean;
+  labelFontSize?: number;
+  /**Distance between circle midpoint and label */
+  labelDistance?: number;
 };
 
 type SectorLineProps = {
@@ -36,21 +42,40 @@ export default function Sector({
   endAngle,
   radius,
   fill,
+  label,
+  showLabels,
+  labelFontSize,
+  labelDistance,
 }: SectorProps) {
-  let { lineX, lineY, largeArcFlag, arcEndX, arcEndY } = computeSector(
-    startAngle,
-    endAngle,
-    radius,
-  );
-
+  let {
+    lineX,
+    lineY,
+    largeArcFlag,
+    arcEndX,
+    arcEndY,
+    labelX,
+    labelY,
+    fontSize,
+  } = computeSector(startAngle, endAngle, radius, labelFontSize, labelDistance);
+  console.log(lineX, lineY);
   return (
     <>
       <Path
-        d={`M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z M${startX} ${startY} l${lineX} ${-lineY} `}
+        d={`M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z `}
         stroke="black"
         strokeWidth={radius / 100}
         fill={fill}
       />
+      {showLabels && (
+        <text
+          x={labelX}
+          y={labelY}
+          fontFamily="Poppins_400Regular"
+          fontSize={fontSize}
+        >
+          {label}
+        </text>
+      )}
     </>
   );
 }
