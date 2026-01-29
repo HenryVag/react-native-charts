@@ -8,13 +8,22 @@ const colors = ["#95D0E8", "#A179AA", "#C4A3CD", "#BDE2F3", "#E8F3F9"];
 type PieChartProps = {
   data: { x: number; y: number }[];
   radius: number;
+  showLabels: boolean;
+  labelFontSize?: number;
+  labelDistance?: number;
 };
 
-export default function PieChart({ data, radius }: PieChartProps) {
+export default function PieChart({
+  data,
+  radius,
+  showLabels,
+  labelFontSize,
+  labelDistance,
+}: PieChartProps) {
   let i = 0;
 
   let { sectorData, lineData } = computePieChart(data, radius);
-  console.log(sectorData[0]);
+
   return (
     <View>
       <Svg width="450" height="450" viewBox="0 0 100 100">
@@ -27,7 +36,11 @@ export default function PieChart({ data, radius }: PieChartProps) {
               startAngle={obj.startAngle}
               endAngle={obj.endAngle}
               radius={obj.radius}
+              label={obj.label}
               fill={fillColor}
+              showLabels={showLabels}
+              labelFontSize={labelFontSize}
+              labelDistance={labelDistance}
               key={obj.key}
             />
           );
@@ -37,7 +50,6 @@ export default function PieChart({ data, radius }: PieChartProps) {
         })}
 
         {lineData.map((obj) => {
-          console.log(obj.key, obj.lineY);
           const sectorLine = (
             <SectorLine
               startX={50}
