@@ -6,6 +6,7 @@ type SectorDataProps = {
   radius: number;
   startAngle: number;
   endAngle: number;
+  label: number;
   key: number;
 };
 
@@ -33,9 +34,10 @@ export default function computePieChart(
     const endAngle = calculateEndAngle(startAngle, obj.y, answeredTotal);
     let lineX = calcLineX(radius, endAngle);
     let lineY = calcLineY(radius, endAngle);
+    let label = obj.y;
     let key = obj.x;
 
-    let sector = { radius, startAngle, endAngle, key };
+    let sector = { radius, startAngle, endAngle, label, key };
     let line = { radius, lineX, lineY, key };
 
     startAngle = endAngle;
