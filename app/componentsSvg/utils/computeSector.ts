@@ -7,8 +7,12 @@ export default function computeSector(
   endAngle: number,
   /**Sector size */
   radius: number,
+  labelfontSize?: number,
+  labelDistance?: number,
 ) {
   let endAngleRad = convertToRad(endAngle);
+  let fontSize = labelfontSize ?? radius * 0.2;
+  const labelDst = labelDistance ?? 1;
 
   let lineX = calcLineX(radius, startAngle);
   let lineY = calcLineY(radius, startAngle);
@@ -18,7 +22,25 @@ export default function computeSector(
   let arcEndX = isZero(radius * Math.cos(endAngleRad) - lineX);
   let arcEndY = isZero(radius * Math.sin(endAngleRad) - lineY);
 
-  let sectorParams = { lineX, lineY, largeArcFlag, arcEndX, arcEndY };
+  let midAngle = (startAngle + endAngle) / 2;
+
+  let labelX =
+    50 + calcLineX(1 + radius * labelDst, midAngle) / 2 - fontSize / 2;
+  let labelY =
+    50 - calcLineY(1 + radius * labelDst, midAngle) / 2 + fontSize / 2;
+
+  console.log(startAngle, endAngle, midAngle);
+
+  let sectorParams = {
+    lineX,
+    lineY,
+    largeArcFlag,
+    arcEndX,
+    arcEndY,
+    labelX,
+    labelY,
+    fontSize,
+  };
   return sectorParams;
 }
 
@@ -33,13 +55,13 @@ function isZero(num: number) {
   return num;
 }
 
-export function calcLineX(radius: number, startAngle: number) {
-  let startAngleRad = convertToRad(startAngle);
+export function calcLineX(radius: number, angle: number) {
+  let angleRad = convertToRad(angle);
 
-  return isZero(radius * Math.cos(startAngleRad));
+  return isZero(radius * Math.cos(angleRad));
 }
 
-export function calcLineY(radius: number, startAngle: number) {
-  let startAngleRad = convertToRad(startAngle);
-  return isZero(radius * Math.sin(startAngleRad));
+export function calcLineY(radius: number, angle: number) {
+  let angleRad = convertToRad(angle);
+  return isZero(radius * Math.sin(angleRad));
 }
