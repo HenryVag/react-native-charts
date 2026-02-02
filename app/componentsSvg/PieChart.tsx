@@ -6,7 +6,7 @@ import computePieChart from "./utils/computePieChart";
 const colors = ["#95D0E8", "#A179AA", "#C4A3CD", "#BDE2F3", "#E8F3F9"];
 
 type PieChartProps = {
-  data: { x: number; y: number }[];
+  data: { label: string; value: number }[];
   radius: number;
   showLabels: boolean;
   labelFontSize?: number;

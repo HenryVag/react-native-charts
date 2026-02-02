@@ -1,11 +1,11 @@
 import { View } from "react-native";
 import PieChart from "./componentsSvg/PieChart";
 const testData = [
-  { x: 1, y: 13 },
-  { x: 2, y: 13 },
-  { x: 3, y: 26 },
-  { x: 4, y: 26 },
-  { x: 5, y: 26 },
+  { label: "1", value: 13 },
+  { label: "2", value: 13 },
+  { label: "3", value: 26 },
+  { label: "4", value: 26 },
+  { label: "5", value: 26 },
 ];
 
 export default function Index() {

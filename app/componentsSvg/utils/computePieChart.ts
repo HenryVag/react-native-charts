@@ -18,7 +18,7 @@ type LineDataProps = {
 };
 
 export default function computePieChart(
-  data: { x: number; y: number }[],
+  data: { label: string; value: number }[],
   radius: number,
 ) {
   let sectorData: SectorDataProps[] = [];
@@ -27,19 +27,20 @@ export default function computePieChart(
   let startAngle = 90;
 
   const answeredTotal = data.reduce(function (acc, curr) {
-    return (acc += curr.y);
+    return (acc += curr.value);
   }, 0);
 
-  data.forEach((obj) => {
-    const endAngle = calculateEndAngle(startAngle, obj.y, answeredTotal);
+  data.map((obj, i) => {
+    const endAngle = calculateEndAngle(startAngle, obj.value, answeredTotal);
     let lineX = calcLineX(radius, endAngle);
     let lineY = calcLineY(radius, endAngle);
-    let label = obj.y;
-    let key = obj.x;
+    let label = obj.value;
+    let key = i;
+
+    console.log(key);
 
     let sector = { radius, startAngle, endAngle, label, key };
     let line = { radius, lineX, lineY, key };
-
     startAngle = endAngle;
     sectorData.push(sector);
     lineData.push(line);
