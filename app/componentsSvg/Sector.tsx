@@ -28,11 +28,15 @@ type SectorLineProps = {
   /** Drawing startpoint y */
   startY: number;
   /**Line endpoint x */
-  lineX: number;
+  centerX: number;
   /**Line endpoint y */
-  lineY: number;
+  centerY: number;
+  endY: number;
+  endX: number;
   /**Radius for strokeWdth calc */
   radius: number;
+
+  sectorAngle: number;
 };
 
 export default function Sector({
@@ -57,7 +61,6 @@ export default function Sector({
     labelY,
     fontSize,
   } = computeSector(startAngle, endAngle, radius, labelFontSize, labelDistance);
-  console.log(lineX, lineY);
   return (
     <>
       <Path
@@ -83,16 +86,21 @@ export default function Sector({
 export function SectorLine({
   startX,
   startY,
-  lineX,
-  lineY,
+  centerX,
+  centerY,
+  endX,
+  endY,
   radius,
+  sectorAngle,
 }: SectorLineProps) {
   return (
-    <Path
-      d={`M${startX} ${startY} l${lineX} ${-lineY} `}
-      stroke="black"
-      strokeWidth={radius * 0.0375}
-      fill={"none"}
-    />
+    sectorAngle >= 72 && (
+      <Path
+        d={`M${startX} ${startY} L${centerX} ${centerY} l ${endX} ${endY} `}
+        stroke="black"
+        strokeWidth={radius * 0.0375}
+        fill={"none"}
+      />
+    )
   );
 }
