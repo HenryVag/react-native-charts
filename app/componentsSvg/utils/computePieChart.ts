@@ -21,7 +21,7 @@ type LineDataProps = {
 };
 
 export default function computePieChart(
-  data: { label: string; value: number }[],
+  data: { group: string; value: number }[],
   radius: number,
 ) {
   let sectorData: SectorDataProps[] = [];
@@ -74,7 +74,7 @@ function calculateEndAngle(
   return endAngle;
 }
 
-function sortByValueAscending(data: { label: string; value: number }[]) {
+function sortByValueAscending(data: { group: string; value: number }[]) {
   let dataDescending = data.sort((a, b) => a.value - b.value);
   dataDescending.forEach((d) => {});
 
