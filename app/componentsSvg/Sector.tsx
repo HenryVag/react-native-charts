@@ -37,6 +37,7 @@ type SectorLineProps = {
   radius: number;
 
   sectorAngle: number;
+  innerStrokeWidthThreshold?: number;
 };
 
 export default function Sector({
@@ -92,9 +93,10 @@ export function SectorLine({
   endY,
   radius,
   sectorAngle,
+  innerStrokeWidthThreshold,
 }: SectorLineProps) {
   return (
-    sectorAngle >= 72 && (
+    sectorAngle >= (innerStrokeWidthThreshold || 361) && (
       <Path
         d={`M${startX} ${startY} L${centerX} ${centerY} l ${endX} ${endY} `}
         stroke="black"

@@ -1,11 +1,11 @@
 import { View } from "react-native";
 import PieChart from "./componentsSvg/PieChart";
 const testData = [
-  { label: "1", value: 13 },
-  { label: "2", value: 13 },
-  { label: "3", value: 26 },
-  { label: "4", value: 26 },
-  { label: "5", value: 26 },
+  { group: "1", value: 20 },
+  { group: "2", value: 20 },
+  { group: "3", value: 13 },
+  { group: "4", value: 13 },
+  { group: "5", value: 13 },
 ];
 
 export default function Index() {
@@ -23,7 +23,8 @@ export default function Index() {
         radius={30}
         showLabels={true}
         labelFontSize={7}
-        labelDistance={1.4}
+        labelDistance={1}
+        innerStrokeWidthThreshold={90}
       />
     </View>
   );
