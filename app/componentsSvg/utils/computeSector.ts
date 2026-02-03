@@ -25,11 +25,9 @@ export default function computeSector(
   let midAngle = (startAngle + endAngle) / 2;
 
   let labelX =
-    50 + calcLineX(1 + radius * labelDst, midAngle) / 2 - fontSize / 2;
+    radius + calcLineX(1 + radius * labelDst, midAngle) / 2 - fontSize / 2;
   let labelY =
-    50 - calcLineY(1 + radius * labelDst, midAngle) / 2 + fontSize / 2;
-
-  console.log(startAngle, endAngle, midAngle);
+    radius - calcLineY(1 + radius * labelDst, midAngle) / 2 + fontSize / 2;
 
   let sectorParams = {
     lineX,

@@ -21,18 +21,21 @@ export default function PieChart({
   labelDistance,
 }: PieChartProps) {
   let i = 0;
-
   let { sectorData, lineData } = computePieChart(data, radius);
 
   return (
     <View>
-      <Svg width="450" height="450" viewBox="0 0 100 100">
+      <Svg
+        width={radius * 10}
+        height={radius * 10}
+        viewBox={`-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}`}
+      >
         {sectorData.map((obj) => {
           let fillColor = colors[i];
           const sector = (
             <Sector
-              startX={50}
-              startY={50}
+              startX={radius}
+              startY={radius}
               startAngle={obj.startAngle}
               endAngle={obj.endAngle}
               radius={obj.radius}
@@ -49,15 +52,18 @@ export default function PieChart({
           return sector;
         })}
 
-        {lineData.map((obj) => {
+        {lineData.map((line) => {
           const sectorLine = (
             <SectorLine
-              startX={50}
-              startY={50}
-              lineX={obj.lineX}
-              lineY={obj.lineY}
-              radius={obj.radius}
-              key={obj.key}
+              startX={line.startX}
+              startY={line.startY}
+              centerX={radius}
+              centerY={radius}
+              endX={line.endX}
+              endY={line.endY}
+              radius={line.radius}
+              sectorAngle={line.sectorAngle}
+              key={line.key}
             />
           );
 
