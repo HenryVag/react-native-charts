@@ -12,8 +12,11 @@ type SectorDataProps = {
 
 type LineDataProps = {
   radius: number;
-  lineX: number;
-  lineY: number;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  sectorAngle: number;
   key: number;
 };
 
@@ -30,17 +33,30 @@ export default function computePieChart(
     return (acc += curr.value);
   }, 0);
 
+  data = sortByValueAscending(data);
+
   data.map((obj, i) => {
     const endAngle = calculateEndAngle(startAngle, obj.value, answeredTotal);
-    let lineX = calcLineX(radius, endAngle);
-    let lineY = calcLineY(radius, endAngle);
+    const sectorAngle = endAngle - startAngle;
+
+    const startX = radius + calcLineX(radius, startAngle);
+    const startY = radius - calcLineY(radius, startAngle);
+
+    const endX = calcLineX(radius, endAngle);
+    const endY = calcLineY(-radius, endAngle);
     let label = obj.value;
     let key = i;
 
-    console.log(key);
-
     let sector = { radius, startAngle, endAngle, label, key };
-    let line = { radius, lineX, lineY, key };
+    let line = {
+      radius,
+      startX,
+      startY,
+      endX,
+      endY,
+      sectorAngle,
+      key,
+    };
     startAngle = endAngle;
     sectorData.push(sector);
     lineData.push(line);
@@ -56,4 +72,11 @@ function calculateEndAngle(
 ) {
   let endAngle = (answeredQst / answeredTotal) * 360 + startAngle;
   return endAngle;
+}
+
+function sortByValueAscending(data: { label: string; value: number }[]) {
+  let dataDescending = data.sort((a, b) => a.value - b.value);
+  dataDescending.forEach((d) => {});
+
+  return dataDescending;
 }
