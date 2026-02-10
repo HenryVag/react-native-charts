@@ -6,23 +6,44 @@ import computePieChart from "./utils/computePieChart";
 const colors = ["#95D0E8", "#A179AA", "#C4A3CD", "#BDE2F3", "#E8F3F9"];
 
 type PieChartProps = {
-  data: { label: string; value: number }[];
+  /**Expects an array of objects */
+  data: { group: string; value: number }[];
+  /**Size of PieChart */
   radius: number;
+  /**Show labels (optional) */
   showLabels: boolean;
+  /**Stroke color */
+  stroke?: string;
+  /**Default strokewidth (optional)*/
+  strokeWidth?: number;
+  /**Font used for labels (optional) */
+  labelFont?: string;
+  /**Label font size (optional) */
   labelFontSize?: number;
+  /**Distance between PieChart center and label (optional) */
   labelDistance?: number;
+  /**Color of sector radius lines (optional) */
+  sectorStroke?: string;
+  /**Threshold in degrees to change sector radius strokewidth (optional)*/
+  sectorStrokeWidthThreshold?: number;
 };
 
 export default function PieChart({
   data,
   radius,
+  strokeWidth,
   showLabels,
+  labelFont,
   labelFontSize,
   labelDistance,
+  sectorStroke,
+  sectorStrokeWidthThreshold,
 }: PieChartProps) {
   let i = 0;
   let { sectorData, lineData } = computePieChart(data, radius);
 
+  strokeWidth = strokeWidth ? strokeWidth : 0.1
+  console.log(strokeWidth)
   return (
     <View>
       <Svg
@@ -31,7 +52,7 @@ export default function PieChart({
         viewBox={`-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}`}
       >
         {sectorData.map((obj) => {
-          let fillColor = colors[i];
+          console.log(obj.startAngle, obj.endAngle)
           const sector = (
             <Sector
               startX={radius}
@@ -39,9 +60,11 @@ export default function PieChart({
               startAngle={obj.startAngle}
               endAngle={obj.endAngle}
               radius={obj.radius}
+              strokeWidth={strokeWidth}
+              fill={obj.fill}
               label={obj.label}
-              fill={fillColor}
               showLabels={showLabels}
+              labelFont={labelFont}
               labelFontSize={labelFontSize}
               labelDistance={labelDistance}
               key={obj.key}
@@ -63,6 +86,8 @@ export default function PieChart({
               endY={line.endY}
               radius={line.radius}
               sectorAngle={line.sectorAngle}
+              sectorStroke={sectorStroke}
+              sectorStrokeWidthThreshold={sectorStrokeWidthThreshold}
               key={line.key}
             />
           );

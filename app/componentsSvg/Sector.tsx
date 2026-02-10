@@ -12,13 +12,20 @@ type SectorProps = {
   endAngle: number;
   /**Sector size */
   radius: number;
+  /**Stroke color (optional)*/
+  stroke?: string;
+  /**Strokewidth of Sector (optional) */
+  strokeWidth?: number;
   /**Color fill */
-  fill: string;
-  /**Displayed data */
-  label?: number | string;
+  fill?: string;
   showLabels: boolean;
+  /**Displayed label */
+  label?: number | string;
+  /**Font used for labels (optional) */
+  labelFont?: string;
+  /**Label font size (optional) */
   labelFontSize?: number;
-  /**Distance between circle midpoint and label */
+  /**Distance between circle midpoint and label (optional)*/
   labelDistance?: number;
 };
 
@@ -33,11 +40,16 @@ type SectorLineProps = {
   centerY: number;
   endY: number;
   endX: number;
-  /**Radius for strokeWdth calc */
+  /**PieChart radius for strokeWdth calc */
   radius: number;
-
+  /**Difference between the startangle and endangle of the sector */
   sectorAngle: number;
-  innerStrokeWidthThreshold?: number;
+  /**Color of sector radius lines (optional) */
+  sectorStroke?: string;
+  /**Strokewidth of sector radius lines (optional) */
+  sectorStrokeWidth?: number;
+  /**Threshold that defines at which angle the strokewidht is increased (optional) */
+  sectorStrokeWidthThreshold?: number;
 };
 
 export default function Sector({
@@ -46,9 +58,12 @@ export default function Sector({
   startAngle,
   endAngle,
   radius,
+  stroke,
+  strokeWidth,
   fill,
   label,
   showLabels,
+  labelFont,
   labelFontSize,
   labelDistance,
 }: SectorProps) {
@@ -66,17 +81,12 @@ export default function Sector({
     <>
       <Path
         d={`M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z `}
-        stroke="black"
-        strokeWidth={radius / 100}
-        fill={fill}
+        stroke={stroke ? stroke : "black"}
+        strokeWidth={strokeWidth ? strokeWidth : radius / 100}
+        fill={fill ? fill : "none"}
       />
       {showLabels && (
-        <text
-          x={labelX}
-          y={labelY}
-          fontFamily="Poppins_400Regular"
-          fontSize={fontSize}
-        >
+        <text x={labelX} y={labelY} fontFamily={labelFont} fontSize={fontSize}>
           {label}
         </text>
       )}
@@ -93,14 +103,16 @@ export function SectorLine({
   endY,
   radius,
   sectorAngle,
-  innerStrokeWidthThreshold,
+  sectorStroke,
+  sectorStrokeWidth,
+  sectorStrokeWidthThreshold,
 }: SectorLineProps) {
   return (
-    sectorAngle >= (innerStrokeWidthThreshold || 361) && (
+    sectorAngle >= (sectorStrokeWidthThreshold || 361) && (
       <Path
         d={`M${startX} ${startY} L${centerX} ${centerY} l ${endX} ${endY} `}
-        stroke="black"
-        strokeWidth={radius * 0.0375}
+        stroke={sectorStroke ? sectorStroke : "black"}
+        strokeWidth={sectorStrokeWidth ? sectorStrokeWidth : radius * 0.0375}
         fill={"none"}
       />
     )
