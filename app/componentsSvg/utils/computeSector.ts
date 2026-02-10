@@ -14,8 +14,8 @@ export default function computeSector(
   let fontSize = labelfontSize ?? radius * 0.2;
   const labelDst = labelDistance ?? 1;
 
-  let lineX = calcLineX(radius, startAngle);
-  let lineY = calcLineY(radius, startAngle);
+  let lineX = calcPointX(radius, startAngle);
+  let lineY = calcPointY(radius, startAngle);
 
   let largeArcFlag = endAngle - startAngle < 180 ? 0 : 1;
 
@@ -25,9 +25,9 @@ export default function computeSector(
   let midAngle = (startAngle + endAngle) / 2;
 
   let labelX =
-    radius + calcLineX(1 + radius * labelDst, midAngle) / 2 - fontSize / 2;
+    radius + calcPointX(1 + radius * labelDst, midAngle) / 2 - fontSize / 2;
   let labelY =
-    radius - calcLineY(1 + radius * labelDst, midAngle) / 2 + fontSize / 2;
+    radius - calcPointY(1 + radius * labelDst, midAngle) / 2 + fontSize / 2;
 
   let sectorParams = {
     lineX,
@@ -53,13 +53,15 @@ function isZero(num: number) {
   return num;
 }
 
-export function calcLineX(radius: number, angle: number) {
+/**Calculates the X coordinates of a point on the arc based on the angle*/
+export function calcPointX(radius: number, angle: number) {
   let angleRad = convertToRad(angle);
 
   return isZero(radius * Math.cos(angleRad));
 }
 
-export function calcLineY(radius: number, angle: number) {
+/**Calculates the Y coordinates of a point on the arc based on the angle*/
+export function calcPointY(radius: number, angle: number) {
   let angleRad = convertToRad(angle);
   return isZero(radius * Math.sin(angleRad));
 }
