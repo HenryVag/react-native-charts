@@ -1,6 +1,6 @@
 //Helper function to calculate sector parameters
 
-export default function computeSector(
+const computeSector = (
   /**0-360 */
   startAngle: number,
   /**0-360 */
@@ -9,7 +9,7 @@ export default function computeSector(
   radius: number,
   labelfontSize?: number,
   labelDistance?: number,
-) {
+)  => {
   let endAngleRad = convertToRad(endAngle);
   let fontSize = labelfontSize ?? radius * 0.2;
   const labelDst = labelDistance ?? 1;
@@ -42,26 +42,28 @@ export default function computeSector(
   return sectorParams;
 }
 
-function convertToRad(angle: number) {
+const convertToRad = (angle: number) => {
   return (angle * Math.PI) / 180;
 }
 
 //Converts limit values to 0
-function isZero(num: number) {
+const isZero = (num: number) => {
   const EPSILON = 1e-10;
   num = Math.abs(num) < EPSILON ? 0 : num;
   return num;
 }
 
 /**Calculates the X coordinates of a point on the arc based on the angle*/
-export function calcPointX(radius: number, angle: number) {
+export const calcPointX = (radius: number, angle: number) => {
   let angleRad = convertToRad(angle);
 
   return isZero(radius * Math.cos(angleRad));
 }
 
 /**Calculates the Y coordinates of a point on the arc based on the angle*/
-export function calcPointY(radius: number, angle: number) {
+export const calcPointY = (radius: number, angle: number) =>{
   let angleRad = convertToRad(angle);
   return isZero(radius * Math.sin(angleRad));
 }
+
+export default computeSector

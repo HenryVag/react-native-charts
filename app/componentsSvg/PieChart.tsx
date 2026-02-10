@@ -28,7 +28,7 @@ type PieChartProps = {
   sectorStrokeWidthThreshold?: number;
 };
 
-export default function PieChart({
+const PieChart = ({
   data,
   radius,
   strokeWidth,
@@ -38,7 +38,7 @@ export default function PieChart({
   labelDistance,
   sectorStroke,
   sectorStrokeWidthThreshold,
-}: PieChartProps) {
+}: PieChartProps) => {
   let i = 0;
   let { sectorData, lineData } = computePieChart(data, radius);
 
@@ -98,3 +98,5 @@ export default function PieChart({
     </View>
   );
 }
+
+export default PieChart

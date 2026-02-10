@@ -21,10 +21,10 @@ type LineDataProps = {
   key: number;
 };
 
-export default function computePieChart(
+const computePieChart = (
   data: { group: string; value: number; fill?: string }[],
   radius: number,
-) {
+) => {
   let sectorData: SectorDataProps[] = [];
   let lineData: LineDataProps[] = [];
 
@@ -68,18 +68,21 @@ export default function computePieChart(
   return { sectorData, lineData };
 }
 
-function calculateEndAngle(
+const calculateEndAngle = (
   startAngle: number,
   answeredQst: number,
   answeredTotal: number,
-) {
+) => {
   let endAngle = (answeredQst / answeredTotal) * 360 + startAngle;
   return endAngle;
 }
 
-function sortByValueAscending(data: { group: string; value: number }[]) {
+const sortByValueAscending = (data: { group: string; value: number }[]) => {
   let dataDescending = data.sort((a, b) => a.value - b.value);
   dataDescending.forEach((d) => {});
 
   return dataDescending;
 }
+
+
+export default computePieChart

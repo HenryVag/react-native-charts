@@ -52,7 +52,7 @@ type SectorLineProps = {
   sectorStrokeWidthThreshold?: number;
 };
 
-export default function Sector({
+const Sector = ({
   startX,
   startY,
   startAngle,
@@ -66,7 +66,7 @@ export default function Sector({
   labelFont,
   labelFontSize,
   labelDistance,
-}: SectorProps) {
+}: SectorProps) => {
   let {
     lineX,
     lineY,
@@ -94,7 +94,7 @@ export default function Sector({
   );
 }
 
-export function SectorLine({
+export const SectorLine = ({
   startX,
   startY,
   centerX,
@@ -106,7 +106,7 @@ export function SectorLine({
   sectorStroke,
   sectorStrokeWidth,
   sectorStrokeWidthThreshold,
-}: SectorLineProps) {
+}: SectorLineProps)  => {
   return (
     sectorAngle >= (sectorStrokeWidthThreshold || 361) && (
       <Path
@@ -118,3 +118,5 @@ export function SectorLine({
     )
   );
 }
+
+export default Sector
