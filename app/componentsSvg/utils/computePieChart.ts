@@ -1,11 +1,12 @@
 // Calculates all necessary values for the PieChart component
 
-import { calcLineX, calcLineY } from "./computeSector";
+import { calcPointX, calcPointY } from "./computeSector";
 
 type SectorDataProps = {
   radius: number;
   startAngle: number;
   endAngle: number;
+  fill: string;
   label: number;
   key: number;
 };
@@ -21,7 +22,7 @@ type LineDataProps = {
 };
 
 export default function computePieChart(
-  data: { group: string; value: number }[],
+  data: { group: string; value: number; fill?: string }[],
   radius: number,
 ) {
   let sectorData: SectorDataProps[] = [];
@@ -39,15 +40,17 @@ export default function computePieChart(
     const endAngle = calculateEndAngle(startAngle, obj.value, answeredTotal);
     const sectorAngle = endAngle - startAngle;
 
-    const startX = radius + calcLineX(radius, startAngle);
-    const startY = radius - calcLineY(radius, startAngle);
+    const startX = radius + calcPointX(radius, startAngle);
+    const startY = radius - calcPointY(radius, startAngle);
 
-    const endX = calcLineX(radius, endAngle);
-    const endY = calcLineY(-radius, endAngle);
-    let label = obj.value;
-    let key = i;
+    const endX = calcPointX(radius, endAngle);
+    const endY = calcPointY(-radius, endAngle);
 
-    let sector = { radius, startAngle, endAngle, label, key };
+    const fill = obj.fill ? obj.fill : "none";
+    const label = obj.value;
+    const key = i;
+
+    let sector = { radius, startAngle, endAngle, label, fill, key };
     let line = {
       radius,
       startX,
