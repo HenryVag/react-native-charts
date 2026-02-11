@@ -25,7 +25,7 @@ const computeSector = (
   let midAngle = (startAngle + endAngle) / 2;
 
   let labelX =
-    radius + calcPointX(1 + radius * labelDst, midAngle) / 2 - fontSize / 2;
+    radius + calcPointX(1 + radius * labelDst, midAngle) / 2 ;
   let labelY =
     radius - calcPointY(1 + radius * labelDst, midAngle) / 2 + fontSize / 2;
 
