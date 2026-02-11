@@ -87,7 +87,7 @@ const Sector = ({
         fill={fill ? fill : "none"}
       />
       {showLabels && (
-        <text x={labelX} y={labelY} fontFamily={labelFont} fontSize={fontSize}>
+        <text x={labelX} y={labelY} textAnchor="middle" fontFamily={labelFont} fontSize={fontSize}>
           {label}
         </text>
       )}
