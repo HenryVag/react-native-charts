@@ -1,5 +1,5 @@
 import { Path } from "react-native-svg";
-import computeSector from "./utils/computeSector";
+import computeSector from "../../utils/computeSector";
 
 type SectorProps = {
   /** Drawing startpoint x */
@@ -77,12 +77,13 @@ const Sector = ({
     labelY,
     fontSize,
   } = computeSector(startAngle, endAngle, radius, labelFontSize, labelDistance);
+  const isFullCircle = Math.abs(endAngle - startAngle) >= 359
   return (
     <>
       <Path
-        d={`M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z `}
+        d={isFullCircle ? `M${startX} ${startY} m${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z ` : `M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z ` }
         stroke={stroke ? stroke : "black"}
-        strokeWidth={strokeWidth ? strokeWidth : radius / 100}
+        strokeWidth={strokeWidth ?? 0}
         fill={fill ? fill : "none"}
       />
       {showLabels && (
@@ -107,12 +108,13 @@ export const SectorLine = ({
   sectorStrokeWidth,
   sectorStrokeWidthThreshold,
 }: SectorLineProps)  => {
+  console.log(sectorStrokeWidth, 1)
   return (
     sectorAngle >= (sectorStrokeWidthThreshold || 361) && (
       <Path
         d={`M${startX} ${startY} L${centerX} ${centerY} l ${endX} ${endY} `}
         stroke={sectorStroke ? sectorStroke : "black"}
-        strokeWidth={sectorStrokeWidth ? sectorStrokeWidth : radius * 0.0375}
+        strokeWidth={sectorStrokeWidth ??  radius * 0.0375}
         fill={"none"}
       />
     )
