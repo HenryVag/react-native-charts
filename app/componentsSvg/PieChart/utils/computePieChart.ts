@@ -7,7 +7,7 @@ type SectorDataProps = {
   startAngle: number;
   endAngle: number;
   fill: string;
-  label: number | undefined;
+  label: string | undefined;
   strokeWidth: number;
   key: number;
 };
@@ -46,7 +46,7 @@ const computePieChart = (
   
   allSectors.forEach((obj, i) => {
     let endAngle = calculateEndAngle(startAngle, obj.value, totalChartValue);
-    let label: number | undefined = obj.value
+    let label: string | undefined = obj.value.toString()
     const sectorAngle = endAngle - startAngle;
     if (labelFontSize && sectorAngle < estLabelWidth(labelFontSize, label)) {
 
@@ -112,7 +112,7 @@ const sortByValueAscending = (data: { group: string; value: number }[]) => {
   return dataAscending;
 }
 
-const countTotalChartValue = (data: { group:string; value:number}[]) => {
+export const countTotalChartValue = (data: { group:string; value:number}[]) => {
     let totalChartValue = data.reduce(function (acc, curr) {
     return (acc += curr.value);
   }, 0);
