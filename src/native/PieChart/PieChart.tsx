@@ -45,9 +45,9 @@ const PieChart = ({
   let i = 0;
   strokeWidth = strokeWidth ?? 0
 
-  let { sectorData, lineData } = computePieChart(data, radius, strokeWidth, sectorStroke);
-
+  
   if (data.length > 1) {
+    let { sectorData, lineData } = computePieChart(data, radius, strokeWidth, sectorStroke);
 
     return (
       <View>
