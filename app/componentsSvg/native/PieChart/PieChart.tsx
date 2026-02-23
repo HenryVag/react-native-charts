@@ -1,9 +1,7 @@
 import { View } from "react-native";
 import Svg from "react-native-svg";
-import computePieChart from "../../utils/computePieChart";
-import PieChartPlaceHolder from "./PieChartPlaceholder";
+import computePieChart from "../PieChart/utils/PieChart/computePieChart";
 import Sector, { SectorLine } from "./Sector";
-
 
 const colors = ["#95D0E8", "#A179AA", "#C4A3CD", "#BDE2F3", "#E8F3F9"];
 
@@ -113,12 +111,17 @@ const PieChart = ({
         viewBox={`-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}`}
         >
       <circle cx={radius} cy={radius} r={radius} stroke="black" stroke-width={strokeWidth} fill={data[0].fill} />
-      <text x={ radius} y={radius + labelFontSize/2} textAnchor="middle">{data[0].value}</text>
+      <text x={radius} y={radius}>{data[0].value}</text>
     </Svg>
   )
 } else {
     return (
-      <PieChartPlaceHolder radius={radius} stroke={stroke} strokeWidth={strokeWidth} />
+    <Svg width={radius * 10}
+        height={radius * 10}
+        viewBox={`-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}`}
+        >
+      <circle cx={radius} cy={radius} r={radius} strokeWidth={strokeWidth} stroke="black" stroke-width={strokeWidth} fill="grey" />
+    </Svg>
     )
 
   }
