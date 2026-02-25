@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import PieChart from "./charts/PieChart/PieChart";
-import { testData } from "./charts/utils/testdata";
+import testData from "./charts/utils/testdata";
 
 export default function Index() {
   return (
