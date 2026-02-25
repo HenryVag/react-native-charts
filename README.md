@@ -1,4 +1,3 @@
-#Reusable React & React-Native Chart Components
+#Reusable React Native Chart Components
 
-
-##This branch contains only the chart components (src), unit tests and documentation.
+This repository contains Piechart and Linechart components for React Native built with minimal dependencies.

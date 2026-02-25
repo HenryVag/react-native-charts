@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import Svg from "react-native-svg";
-import computePieChart from "../../utils/PieChart/computePieChart";
+import computePieChart from "../utils/PieChart/computePieChart";
 import Sector, { SectorLine } from "./Sector";
 
 const colors = ["#95D0E8", "#A179AA", "#C4A3CD", "#BDE2F3", "#E8F3F9"];
@@ -50,7 +50,7 @@ const PieChart = ({
     let { sectorData, lineData } = computePieChart(data, radius, strokeWidth, sectorStroke);
 
     return (
-      <View>
+    <View>
       <Svg
         width={radius * 10}
         height={radius * 10}

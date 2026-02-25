@@ -1,5 +1,5 @@
 import { Path } from "react-native-svg";
-import computeSector from "../../utils/PieChart/computeSector";
+import computeSector from "../utils/PieChart/computeSector";
 
 type SectorProps = {
   /** Drawing startpoint x */
