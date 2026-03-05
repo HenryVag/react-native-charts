@@ -22,11 +22,12 @@ type PieChartPlaceHolderProps = {
  */
 
 const PieChartPlaceHolder = ({radius, strokeWidth, stroke, placeHolderFill}: PieChartPlaceHolderProps ) => {
+    const padding = radius * 0.1
     return(
 
-        <Svg width={radius * 10}
-            height={radius * 10}
-            viewBox={`-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}`}
+        <Svg width={radius * 2}
+            height={radius * 2}
+            viewBox={`${-padding} ${-padding} ${radius * 2 + padding * 2} ${radius * 2 + padding * 2}`}
             >
           <circle cx={radius} cy={radius} r={radius} strokeWidth={strokeWidth} stroke={stroke} fill={placeHolderFill ?? "#E5E7EB"} />
         </Svg>

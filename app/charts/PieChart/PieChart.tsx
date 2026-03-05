@@ -46,22 +46,23 @@ const PieChart = ({
 }: PieChartProps) => {
 
   const safeStrokeWidth = strokeWidth ?? 0
+  const safeLabelDistance = labelDistance ?? 0
   const validatedData = useMemo(() => filterData(data), [data])
-  const screenWidth = useWindowDimensions().width
-  const dynamicRadius = screenWidth * 0.035
+  const {width, height} = useWindowDimensions()
+  const dynamicRadius = radius * Math.min(width, height) * 0.01
+  const padding = safeStrokeWidth + safeLabelDistance * 2 +  dynamicRadius * 0.1
   
   // Render all required sectors if the length of validatedData > 1
   // Render SingleSector if the amount of to be rendered sectors ends up as 1
   if (validatedData.length > 1) {
     let { sectorData, lineData } = computePieChart(validatedData, dynamicRadius, safeStrokeWidth, labelFontSize, sectorStroke);
     if (sectorData.length > 1) {
-
       return (
-        <View>
+        <View style={{alignItems: "center", justifyContent: "center"}}>
           <Svg
-            width={dynamicRadius * 10}
-            height={dynamicRadius * 10}
-            viewBox={`-10 -10 ${dynamicRadius * 2 + 20} ${dynamicRadius * 2 + 20}`}
+            width={dynamicRadius * 2}
+            height={dynamicRadius * 2}
+            viewBox={`${-padding} ${-padding}  ${dynamicRadius * 2 + padding * 2} ${dynamicRadius * 2 + padding * 2}`}
             >
             {sectorData.map((obj) => (
               <Sector
@@ -69,7 +70,7 @@ const PieChart = ({
               startY={dynamicRadius}
               startAngle={obj.startAngle}
               endAngle={obj.endAngle}
-              radius={obj.radius}
+              radius={dynamicRadius}
               stroke={stroke}
                 strokeWidth={obj.strokeWidth}
                 fill={obj.fill}
@@ -106,16 +107,16 @@ const PieChart = ({
       const sectorValue = Number(sectorData[0].label)
       const sectorFill = sectorData[0].fill
         return (
-    <SingleSector data={[{group: "1", value: sectorValue, fill: sectorFill }]} radius={dynamicRadius} stroke={stroke ?? "black"} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} />
+    <SingleSector data={[{group: "1", value: sectorValue, fill: sectorFill }]} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} />
   )
     }
 } else if (validatedData.length === 1) {
   return (
-    <SingleSector data={validatedData} radius={dynamicRadius} stroke={stroke ?? "black"} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} />
+    <SingleSector data={validatedData} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} />
   )
 } else {
     return (
-      <PieChartPlaceHolder radius={radius} strokeWidth={safeStrokeWidth} stroke={stroke} />
+      <PieChartPlaceHolder radius={dynamicRadius} strokeWidth={safeStrokeWidth} stroke={stroke} />
     )
   }
 }
