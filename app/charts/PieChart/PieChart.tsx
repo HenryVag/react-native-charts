@@ -1,5 +1,5 @@
 import { memo, useMemo } from "react";
-import { Dimensions, View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import Svg from "react-native-svg";
 import computePieChart from "../utils/PieChart/computePieChart";
 import filterData from "../utils/PieChart/validateData";
@@ -47,7 +47,7 @@ const PieChart = ({
 
   const safeStrokeWidth = strokeWidth ?? 0
   const validatedData = useMemo(() => filterData(data), [data])
-  const screenWidth = Dimensions.get("window").width
+  const screenWidth = useWindowDimensions().width
   const dynamicRadius = screenWidth * 0.035
   
   // Render all required sectors if the length of validatedData > 1
