@@ -52,6 +52,39 @@ type SectorLineProps = {
   sectorStrokeWidthThreshold?: number;
 };
 
+/**
+ * Sector component
+ *
+ * Renders a single pie chart sector with an optional label.
+ *
+ * @param props.startX - X coordinate of the pie chart center
+ * @param props.startY - Y coordinate of the pie chart center
+ * @param props.startAngle - Starting angle of the sector (0-360°)
+ * @param props.endAngle - Ending angle of the sector (0-360°)
+ * @param props.radius - Radius of the sector
+ * @param props.stroke - Optional stroke color for the sector border
+ * @param props.strokeWidth - Optional stroke width for the sector border
+ * @param props.fill - Optional fill color of the sector
+ * @param props.showLabels - Whether to display the sector label
+ * @param props.label - Label value displayed in the center of the sector
+ * @param props.labelFont - Optional font for the label
+ * @param props.labelFontSize - Optional font size for the label
+ * @param props.labelDistance - Optional distance multiplier for label placement
+ *
+ * @returns JSX.Element
+ * 
+ * Renders:
+ * 1. <Path /> - The actual SVG arc for the sector
+ *    - Uses startX/startY as the center
+ *    - Uses startAngle, endAngle, and radius to draw the arc
+ *    - lineX, lineY: offset to arc start from center
+ *    - arcEndX, arcEndY: offset from start point to arc end
+ *    - largeArcFlag: determines if the arc is > 180°
+ * 2. <text /> (optional) - Label positioned at the midpoint of the sector
+ *    - labelX, labelY: calculated coordinates for label placement
+ *    - fontSize: calculated or default font size
+ */
+
 const Sector = ({
   startX,
   startY,
@@ -77,7 +110,7 @@ const Sector = ({
     labelY,
     fontSize,
   } = computeSector(startAngle, endAngle, radius, labelFontSize, labelDistance);
-  const isFullCircle = Math.abs(endAngle - startAngle) >= 359
+  const isFullCircle = Math.abs(endAngle - startAngle) >= 359.9
   return (
     <>
       <Path
@@ -95,6 +128,38 @@ const Sector = ({
   );
 }
 
+/**
+ * SectorLine component
+ *
+ * Renders a line extending from the pie chart center to the sector's edge.
+ * Can be used to visually connect sectors or highlight sector boundaries.
+ *
+ * @param props.startX - X coordinate of the sector start point (edge of the sector)
+ * @param props.startY - Y coordinate of the sector start point (edge of the sector)
+ * @param props.centerX - X coordinate of the pie chart center
+ * @param props.centerY - Y coordinate of the pie chart center
+ * @param props.endX - X offset for the end of the line relative to the start
+ * @param props.endY - Y offset for the end of the line relative to the start
+ * @param props.radius - Pie chart radius, used for default strokeWidth calculation
+ * @param props.sectorAngle - Angle span of the sector in degrees
+ * @param props.sectorStroke - Optional stroke color of the line
+ * @param props.sectorStrokeWidth - Optional stroke width of the line
+ * @param props.sectorStrokeWidthThreshold - Optional threshold angle (degrees) for drawing the line
+ *
+ * @returns JSX.Element | false
+ *
+ * Renders:
+ * - <Path />: the line from sector edge to pie center
+ *   - Only renders if sectorAngle >= sectorStrokeWidthThreshold (default 361°, i.e., all angles)
+ *   - `d` attribute uses:
+ *       M startX,startY       -> move to start of the line
+ *       L centerX,centerY     -> draw line to pie center
+ *       l endX,endY           -> optional offset relative to start
+ *   - stroke: color of the line
+ *   - strokeWidth: either provided or default based on radius
+ *   - fill: always "none"
+ */
+
 export const SectorLine = ({
   startX,
   startY,
@@ -108,7 +173,6 @@ export const SectorLine = ({
   sectorStrokeWidth,
   sectorStrokeWidthThreshold,
 }: SectorLineProps)  => {
-  console.log(sectorStrokeWidth, 1)
   return (
     sectorAngle >= (sectorStrokeWidthThreshold || 361) && (
       <Path
