@@ -1,4 +1,21 @@
-//Helper function to calculate sector parameters
+/**
+ * Calculates all necessary parameters to draw a PieChart sector and its label.
+ *
+ * @param startAngle - Sector start angle in degrees (0-360)
+ * @param endAngle - Sector end angle in degrees (0-360)
+ * @param radius - Radius of the sector
+ * @param labelfontSize - Optional font size for the label
+ * @param labelDistance - Optional distance factor for the label from the center
+ * @returns Object containing:
+ *   - lineX: X-coordinate of the line from center to start of the arc
+ *   - lineY: Y-coordinate of the line from center to start of the arc
+ *   - largeArcFlag: 0 or 1, used in SVG path to handle arcs > 180°
+ *   - arcEndX: X-coordinate of the end point of the arc relative to start point
+ *   - arcEndY: Y-coordinate of the end point of the arc relative to start point
+ *   - labelX: X-coordinate of the label (centered in the sector)
+ *   - labelY: Y-coordinate of the label (centered in the sector)
+ *   - fontSize: Computed font size for the label
+ */
 
 const computeSector = (
   /**0-360 */
@@ -10,20 +27,26 @@ const computeSector = (
   labelfontSize?: number,
   labelDistance?: number,
 )  => {
+  //End angle in radians 
   let endAngleRad = convertToRad(endAngle);
-  let fontSize = labelfontSize ?? radius * 0.2;
+
+  let fontSize = labelfontSize ? labelfontSize * radius * 0.0225 : radius * 0.225;
   const labelDst = labelDistance ?? 1;
 
+  //Drawing startpoints
   let lineX = calcPointX(radius, startAngle);
   let lineY = calcPointY(radius, startAngle);
 
+  //Largearcflag is set to prevent incorrect drawing of sectors over 180 degrees
   let largeArcFlag = endAngle - startAngle < 180 ? 0 : 1;
 
+  //End points of the arc
   let arcEndX = isZero(radius * Math.cos(endAngleRad) - lineX);
   let arcEndY = isZero(radius * Math.sin(endAngleRad) - lineY);
 
   let midAngle = (startAngle + endAngle) / 2;
 
+  //Calculate label position to be in the middle of a sector
   let labelX =
     radius + calcPointX(1 + radius * labelDst, midAngle) / 2 ;
   let labelY =
@@ -42,11 +65,12 @@ const computeSector = (
   return sectorParams;
 }
 
+/**Converts input angle to radians */
 const convertToRad = (angle: number) => {
   return (angle * Math.PI) / 180;
 }
 
-//Converts limit values to 0
+/**Converts limit values to 0 */
 const isZero = (num: number) => {
   const EPSILON = 1e-10;
   num = Math.abs(num) < EPSILON ? 0 : num;
