@@ -1,13 +1,15 @@
-import { View } from "react-native";
+import { memo, useMemo } from "react";
+import { Dimensions, View } from "react-native";
 import Svg from "react-native-svg";
 import computePieChart from "../utils/PieChart/computePieChart";
+import filterData from "../utils/PieChart/validateData";
+import PieChartPlaceHolder from "./PieChartPlaceholder";
 import Sector, { SectorLine } from "./Sector";
-
-const colors = ["#95D0E8", "#A179AA", "#C4A3CD", "#BDE2F3", "#E8F3F9"];
+import SingleSector from "./SingleSector";
 
 type PieChartProps = {
   /**Expects an array of objects */
-  data: { group: string; value: number, fill:string; }[];
+  data: { group?: string; value: number, fill?:string; }[];
   /**Size of PieChart */
   radius: number;
   /**Show labels (optional) */
@@ -42,89 +44,109 @@ const PieChart = ({
   sectorStrokeWidth,
   sectorStrokeWidthThreshold,
 }: PieChartProps) => {
-  let i = 0;
-  strokeWidth = strokeWidth ?? 0
 
+  const safeStrokeWidth = strokeWidth ?? 0
+  const validatedData = useMemo(() => filterData(data), [data])
+  const screenWidth = Dimensions.get("window").width
+  const dynamicRadius = screenWidth * 0.035
   
-  if (data.length > 1) {
-    let { sectorData, lineData } = computePieChart(data, radius, strokeWidth, sectorStroke);
+  // Render all required sectors if the length of validatedData > 1
+  // Render SingleSector if the amount of to be rendered sectors ends up as 1
+  if (validatedData.length > 1) {
+    let { sectorData, lineData } = computePieChart(validatedData, dynamicRadius, safeStrokeWidth, labelFontSize, sectorStroke);
+    if (sectorData.length > 1) {
 
-    return (
-    <View>
-      <Svg
-        width={radius * 10}
-        height={radius * 10}
-        viewBox={`-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}`}
-        >
-        {sectorData.map((obj) => {
-          
-          const sector = (
-            <Sector
-            startX={radius}
-            startY={radius}
-            startAngle={obj.startAngle}
-            endAngle={obj.endAngle}
-            radius={obj.radius}
-            stroke={stroke}
-            strokeWidth={obj.strokeWidth}
-            fill={obj.fill}
-            label={obj.label}
-            showLabels={showLabels}
-            labelFont={labelFont}
-            labelFontSize={labelFontSize}
-            labelDistance={labelDistance}
-            key={obj.key}
-            />
-          );
-          
-          i++;
-          return sector;
-        })}
+      return (
+        <View>
+          <Svg
+            width={dynamicRadius * 10}
+            height={dynamicRadius * 10}
+            viewBox={`-10 -10 ${dynamicRadius * 2 + 20} ${dynamicRadius * 2 + 20}`}
+            >
+            {sectorData.map((obj) => (
+              <Sector
+              startX={dynamicRadius}
+              startY={dynamicRadius}
+              startAngle={obj.startAngle}
+              endAngle={obj.endAngle}
+              radius={obj.radius}
+              stroke={stroke}
+                strokeWidth={obj.strokeWidth}
+                fill={obj.fill}
+                label={obj.label}
+                showLabels={showLabels}
+                labelFont={labelFont}
+                labelFontSize={labelFontSize}
+                labelDistance={labelDistance}
+                key={obj.key}
+                />   
+              ))}
 
-        {lineData.map((line) => {
-          const sectorLine = (
-            <SectorLine
-            startX={line.startX}
-            startY={line.startY}
-            centerX={radius}
-            centerY={radius}
-            endX={line.endX}
-            endY={line.endY}
-            radius={line.radius}
-            sectorAngle={line.sectorAngle}
-            sectorStroke={line.sectorStroke}
-            sectorStrokeWidth={sectorStrokeWidth}
-            sectorStrokeWidthThreshold={sectorStrokeWidthThreshold}
-            key={line.key}
-            />
-          );
-          
-          return sectorLine;
-        })}
-      </Svg>
-    </View>
-  );
-} else if (data.length === 1) {
+            {lineData.map((line) => (
+             
+              <SectorLine
+                startX={line.startX}
+                startY={line.startY}
+                centerX={dynamicRadius}
+                centerY={dynamicRadius}
+                endX={line.endX}
+                endY={line.endY}
+                radius={line.radius}
+                sectorAngle={line.sectorAngle}
+                sectorStroke={line.sectorStroke}
+                sectorStrokeWidth={sectorStrokeWidth}
+                sectorStrokeWidthThreshold={sectorStrokeWidthThreshold}
+                key={line.key}
+              />
+            ))}
+          </Svg>
+        </View>
+      );
+    } else if (sectorData.length === 1){
+      const sectorValue = Number(sectorData[0].label)
+      const sectorFill = sectorData[0].fill
+        return (
+    <SingleSector data={[{group: "1", value: sectorValue, fill: sectorFill }]} radius={dynamicRadius} stroke={stroke ?? "black"} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} />
+  )
+    }
+} else if (validatedData.length === 1) {
   return (
-    <Svg width={radius * 10}
-        height={radius * 10}
-        viewBox={`-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}`}
-        >
-      <circle cx={radius} cy={radius} r={radius} stroke="black" stroke-width={strokeWidth} fill={data[0].fill} />
-      <text x={radius} y={radius}>{data[0].value}</text>
-    </Svg>
+    <SingleSector data={validatedData} radius={dynamicRadius} stroke={stroke ?? "black"} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} />
   )
 } else {
     return (
-    <Svg width={radius * 10}
-        height={radius * 10}
-        viewBox={`-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}`}
-        >
-      <circle cx={radius} cy={radius} r={radius} strokeWidth={strokeWidth} stroke="black" stroke-width={strokeWidth} fill="grey" />
-    </Svg>
+      <PieChartPlaceHolder radius={radius} strokeWidth={safeStrokeWidth} stroke={stroke} />
     )
-
   }
 }
 
-export default PieChart
+/**
+ * PieChart component
+ *
+ * Renders a pie chart based on the provided data. Depending on the input:
+ * - If validated data has more than one sector, renders a full PieChart with Sector and SectorLine components.
+ * - If only one valid sector exists, renders a SingleSector component.
+ * - If no valid data exists, renders a PieChartPlaceHolder component.
+ *
+ * Uses `useMemo` to filter and validate input data to prevent unnecessary re-renders.
+ *
+ * Props:
+ * @param data Array of objects with { group?: string, value: number, fill?: string }.
+ * @param radius Size of the PieChart (radius).
+ * @param showLabels Whether to display sector labels.
+ * @param stroke Optional stroke color for sectors.
+ * @param strokeWidth Optional default stroke width.
+ * @param labelFont Optional font family for labels.
+ * @param labelFontSize Optional font size for labels.
+ * @param labelDistance Optional distance from the center for labels.
+ * @param sectorStroke Optional color for sector radius lines.
+ * @param sectorStrokeWidth Width of sector radius lines.
+ * @param sectorStrokeWidthThreshold Threshold in degrees for increasing sector stroke width.
+ *
+ * Returns:
+ * JSX.Element – a View containing:
+ * - Svg with multiple Sector and SectorLine elements if multiple sectors exist,
+ * - SingleSector if only one sector,
+ * - PieChartPlaceHolder if no valid data.
+ */
+export default memo(PieChart)
