@@ -19,13 +19,20 @@ type LineDataProps = {
   endX: number;
   endY: number;
   sectorAngle: number;
-  sectorStroke: string | undefined;
+  sectorStroke: string |undefined;
   key: number;
 };
 
+/**
+ * Calculates all velues needed for drawing a piechart (angles, coordinates, lines, label positions). 
+ * @returns Object with:
+ *  - sectorData: Array of sector parameters {radius, strokeWidth, startAngle, endAngle, label, fill, key}
+ *  - lineData: Array of sector radius line parameters {radius, startX, startY, endX, endY, sectorAngle, sectorStroke, key}
+ */
+
 const computePieChart = (
   data: { group: string; value: number; fill?: string }[],
-  radius: number, strokeWidth: number, labelFontSize:number | undefined, sectorStroke: string | undefined,
+  radius: number, strokeWidth: number, labelFontSize?:number | undefined, sectorStroke?: string,
 ) => {
   let sectorData: SectorDataProps[] = [];
   let lineData: LineDataProps[] = [];
@@ -34,16 +41,18 @@ const computePieChart = (
 
   let totalChartValue = countTotalChartValue(data)
 
+  //Sort all sectors greater than 2% of the total charts value into a variable.
   const sectors = data.filter((sector)=> sector.value / totalChartValue > 0.02 )
-  const otherSector = sortToOther(data)
-  let allSectors: { group: string; value: number; fill?: string }[] = []
-  sectors.forEach((sector) => {
-    allSectors.push(sector)
-  })
-  allSectors.push(otherSector)
 
+  //Combine all sectors smaller than 2% of the total charts value into a "other" sector.
+  const otherSector = sortToOther(data)
+
+  //Add the normal and "other" sectors into an array and sort them by ascending order.
+  let allSectors: { group: string; value: number; fill?: string }[] = []
+  allSectors = [...sectors, otherSector]
   allSectors = sortByValueAscending(allSectors)
   
+  //Defines endangle, label (if it fits) and the total angle size of the sector 
   allSectors.forEach((obj, i) => {
     let endAngle = calculateEndAngle(startAngle, obj.value, totalChartValue);
     let label: string | undefined = obj.value.toString()
@@ -53,7 +62,8 @@ const computePieChart = (
       label = undefined;
     } 
 
-    // Returns sectors that consist of 2% of the chart
+    // Returns sectors and their radii lines that consist of 2% of the chart, excludes e.g. the "other" sector if it does not meet this criteria.
+    // 7.2 / 360 = 2%
     if (sectorAngle >=  7.2) {
 
       const startX = radius + calcPointX(radius, startAngle);
@@ -99,7 +109,8 @@ const calculateEndAngle = (
   return endAngle;
 }
 
-const estLabelWidth = (labelFontSize:number, label:string) => {
+/**Estimates label width */
+export const estLabelWidth = (labelFontSize:number, label:string) => {
   const labelLen = label.toString().length
 
   return labelFontSize * labelLen - labelFontSize / 2
@@ -122,11 +133,13 @@ export const countTotalChartValue = (data: { group:string; value:number}[]) => {
 /**Combines all sectors that are smaller than 2% of the charts total value into a single "Other" sector */
 const sortToOther = (data: {group: string, value: number, fill?:string}[]) => {
   let totalChartValue = countTotalChartValue(data)
+ 
   const smallSectors = data.filter((sector)=> sector.value / totalChartValue < 0.02 )
   const otherSectorGroup = "Other"
   const otherSectorVal = smallSectors.reduce( (acc, curr) => acc + curr.value, 0
   )
-  const otherSectorFill = smallSectors[0].fill
+
+  const otherSectorFill = smallSectors[0]?.fill ?? "none"
   const otherSector = {group: otherSectorGroup, value: otherSectorVal, fill: otherSectorFill}
 
   return otherSector
