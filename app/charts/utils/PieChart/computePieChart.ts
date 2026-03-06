@@ -10,6 +10,7 @@ type SectorDataProps = {
   label: string | undefined;
   strokeWidth: number;
   key: number;
+  group?: string
 };
 
 type LineDataProps = {
@@ -24,7 +25,7 @@ type LineDataProps = {
 };
 
 /**
- * Calculates all velues needed for drawing a piechart (angles, coordinates, lines, label positions). 
+ * Calculates all values needed for drawing a piechart (angles, coordinates, lines, label positions). 
  * @returns Object with:
  *  - sectorData: Array of sector parameters {radius, strokeWidth, startAngle, endAngle, label, fill, key}
  *  - lineData: Array of sector radius line parameters {radius, startX, startY, endX, endY, sectorAngle, sectorStroke, key}
@@ -74,9 +75,11 @@ const computePieChart = (
       
       const fill = obj.fill ? obj.fill : "none";
       const key = i;
+
+      const group = obj.group
       
       
-      let sector = { radius, strokeWidth, startAngle, endAngle, label, fill, key };
+      let sector = { radius, strokeWidth, startAngle, endAngle, label, fill, key, group };
       let line = {
         radius,
         startX,
