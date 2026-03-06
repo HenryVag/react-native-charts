@@ -10,3 +10,5 @@ const DEFAULT_COLORS = [
   "#9C755F", 
   "#BAB0AC",  
 ]
+
+export default DEFAULT_COLORS
