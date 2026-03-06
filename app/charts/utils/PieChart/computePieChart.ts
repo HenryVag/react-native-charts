@@ -1,6 +1,7 @@
 // Calculates all necessary values for the PieChart component
 
 import { calcPointX, calcPointY } from "./computeSector";
+import DEFAULT_COLORS from "./defaultColors";
 
 type SectorDataProps = {
   radius: number;
@@ -73,7 +74,7 @@ const computePieChart = (
       const endX = calcPointX(radius, endAngle);
       const endY = calcPointY(-radius, endAngle);
       
-      const fill = obj.fill ? obj.fill : "none";
+      const fill = obj.fill ? obj.fill : DEFAULT_COLORS[i % DEFAULT_COLORS.length];
       const key = i;
 
       const group = obj.group
