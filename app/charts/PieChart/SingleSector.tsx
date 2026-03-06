@@ -1,4 +1,5 @@
-import Svg from "react-native-svg"
+import { View } from "react-native"
+import Svg, { Circle, Text } from "react-native-svg"
 
 type SingleSectorProps = {
     data: {group?: string, value: number, fill?: string}[]
@@ -9,6 +10,7 @@ type SingleSectorProps = {
     labelFont?: string
     labelFontSize?: number
     showLabels?: boolean
+    title?: string
 }
 
 /**
@@ -21,18 +23,24 @@ type SingleSectorProps = {
  * @param labelFont - font family of the label
  * @param labelFontSize - font size of the label
  * @param showLabels - whether to display the value in the center
+ * @param title - accessibility label for screen readers
  */
 
 
-const SingleSector = ({data, radius, padding, stroke, strokeWidth, labelFont, labelFontSize, showLabels}: SingleSectorProps) => {
+const SingleSector = ({data, radius, padding, stroke, strokeWidth, labelFont, labelFontSize, showLabels, title}: SingleSectorProps) => {
     return ( 
-        <Svg width={radius * 2}
-            height={radius * 2}
-            viewBox={` ${-padding} ${-padding} ${radius * 2 + padding * 2} ${radius * 2 + padding * 2}`}
-            >
-            <circle cx={radius} cy={radius} r={radius} stroke={stroke ?? "black"} strokeWidth={strokeWidth} fill={data[0].fill ?? "grey"} />
-            { showLabels && <text fontFamily={labelFont} fontSize={labelFontSize ? labelFontSize * radius * 0.0225 : radius * 0.225} x={radius} y={radius} textAnchor="middle" dominantBaseline="middle">{data[0].value} </text>}    
-        </Svg>
+        <View accessible={true} accessibilityLabel={title} accessibilityRole={"image"}>
+            <Svg width={radius * 2}
+                height={radius * 2}
+                viewBox={` ${-padding} ${-padding} ${radius * 2 + padding * 2} ${radius * 2 + padding * 2}`}
+                accessible={false}
+                aria-hidden={true}
+                
+                >
+                <Circle cx={radius} cy={radius} r={radius} stroke={stroke ?? "black"} strokeWidth={strokeWidth} fill={data[0].fill ?? "grey"} accessible={false}  />
+                { showLabels && <Text fontFamily={labelFont} fontSize={labelFontSize ? labelFontSize * radius * 0.0225 : radius * 0.225} x={radius} y={radius} textAnchor="middle" accessible={false}>{data[0].value} </Text>}    
+            </Svg>
+        </View>
     )
 }
 

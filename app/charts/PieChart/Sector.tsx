@@ -1,4 +1,4 @@
-import { Path } from "react-native-svg";
+import { Path, Text } from "react-native-svg";
 import computeSector from "../utils/PieChart/computeSector";
 
 type SectorProps = {
@@ -80,7 +80,7 @@ type SectorLineProps = {
  *    - lineX, lineY: offset to arc start from center
  *    - arcEndX, arcEndY: offset from start point to arc end
  *    - largeArcFlag: determines if the arc is > 180°
- * 2. <text /> (optional) - Label positioned at the midpoint of the sector
+ * 2. <Text /> (optional) - Label positioned at the midpoint of the sector
  *    - labelX, labelY: calculated coordinates for label placement
  *    - fontSize: calculated or default font size
  */
@@ -112,19 +112,22 @@ const Sector = ({
   } = computeSector(startAngle, endAngle, radius, labelFontSize, labelDistance);
   const isFullCircle = Math.abs(endAngle - startAngle) >= 359.9
   return (
-    <>
-      <Path
-        d={isFullCircle ? `M${startX} ${startY} m${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z ` : `M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z ` }
-        stroke={stroke ? stroke : "black"}
-        strokeWidth={strokeWidth ?? 0}
-        fill={fill ? fill : "none"}
-      />
-      {showLabels && (
-        <text x={labelX} y={labelY} textAnchor="middle" fontFamily={labelFont} fontSize={fontSize}>
-          {label}
-        </text>
-      )}
-    </>
+  
+      <>
+        <Path
+          d={isFullCircle ? `M${startX} ${startY} m${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z ` : `M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z ` }
+          stroke={stroke ? stroke : "black"}
+          strokeWidth={strokeWidth ?? 0}
+          fill={fill ? fill : "none"}
+          accessible={false}      
+          />
+        {showLabels && (
+          <Text x={labelX} y={labelY} textAnchor="middle" fontFamily={labelFont} fontSize={fontSize} aria-hidden={true} accessible={false} >
+            {label}
+          </Text>
+        )}
+      </>
+
   );
 }
 
@@ -180,6 +183,7 @@ export const SectorLine = ({
         stroke={sectorStroke ? sectorStroke : "black"}
         strokeWidth={sectorStrokeWidth ??  radius * 0.0375}
         fill={"none"}
+        accessible={false}
       />
     )
   );

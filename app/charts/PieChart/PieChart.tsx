@@ -29,6 +29,9 @@ type PieChartProps = {
   sectorStrokeWidth: number
   /**Threshold in degrees to change sector radius strokewidth (optional)*/
   sectorStrokeWidthThreshold?: number;
+  /**Used as first part of the screen reader label, falls back to English if not provided */
+  title?: string;
+  emptyTitle?: string
 };
 
 const PieChart = ({
@@ -43,26 +46,33 @@ const PieChart = ({
   sectorStroke,
   sectorStrokeWidth,
   sectorStrokeWidthThreshold,
+  title,
+  emptyTitle,
 }: PieChartProps) => {
 
-  const safeStrokeWidth = strokeWidth ?? 0
+  const {width, height} = useWindowDimensions()
+  const safeStrokeWidth = strokeWidth ? Math.min(width, height) * strokeWidth * 0.002 : 0
+  const safeSectorStrokeWidth = sectorStrokeWidth ? Math.min(width, height) * sectorStrokeWidth * 0.002 : 0
   const safeLabelDistance = labelDistance ?? 0
   const validatedData = useMemo(() => filterData(data), [data])
-  const {width, height} = useWindowDimensions()
   const dynamicRadius = radius * Math.min(width, height) * 0.01
   const padding = safeStrokeWidth + safeLabelDistance * 2 +  dynamicRadius * 0.1
+  const chartTitle = title ?? "pie chart"
   
   // Render all required sectors if the length of validatedData > 1
   // Render SingleSector if the amount of to be rendered sectors ends up as 1
   if (validatedData.length > 1) {
     let { sectorData, lineData } = computePieChart(validatedData, dynamicRadius, safeStrokeWidth, labelFontSize, sectorStroke);
+    const generatedLabel = sectorData.map((obj) => `${obj.group}: ${obj.label}`).join(", ")
     if (sectorData.length > 1) {
+
       return (
-        <View style={{alignItems: "center", justifyContent: "center"}}>
+        <View style={{alignItems: "center", justifyContent: "center"}} accessible={true} accessibilityLabel={`${chartTitle}. ${generatedLabel}`} accessibilityRole={"image"}>
           <Svg
             width={dynamicRadius * 2}
             height={dynamicRadius * 2}
             viewBox={`${-padding} ${-padding}  ${dynamicRadius * 2 + padding * 2} ${dynamicRadius * 2 + padding * 2}`}
+            aria-hidden={true}
             >
             {sectorData.map((obj) => (
               <Sector
@@ -95,7 +105,7 @@ const PieChart = ({
                 radius={line.radius}
                 sectorAngle={line.sectorAngle}
                 sectorStroke={line.sectorStroke}
-                sectorStrokeWidth={sectorStrokeWidth}
+                sectorStrokeWidth={safeSectorStrokeWidth}
                 sectorStrokeWidthThreshold={sectorStrokeWidthThreshold}
                 key={line.key}
               />
@@ -106,17 +116,18 @@ const PieChart = ({
     } else if (sectorData.length === 1){
       const sectorValue = Number(sectorData[0].label)
       const sectorFill = sectorData[0].fill
+      const sectorGroup = sectorData[0].group
         return (
-    <SingleSector data={[{group: "1", value: sectorValue, fill: sectorFill }]} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} />
+    <SingleSector data={[{group: sectorGroup, value: sectorValue, fill: sectorFill }]} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}, ${generatedLabel}`} />
   )
     }
 } else if (validatedData.length === 1) {
   return (
-    <SingleSector data={validatedData} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} />
+    <SingleSector data={validatedData} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}. ${validatedData[0].group}: ${validatedData[0].value}` }/>
   )
 } else {
     return (
-      <PieChartPlaceHolder radius={dynamicRadius} strokeWidth={safeStrokeWidth} stroke={stroke} />
+      <PieChartPlaceHolder radius={dynamicRadius} strokeWidth={safeStrokeWidth} stroke={stroke} title={emptyTitle} />
     )
   }
 }
