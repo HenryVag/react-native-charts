@@ -33,6 +33,8 @@ type PieChartProps = {
   /**Used as first part of the screen reader label, falls back to English if not provided */
   title?: string;
   emptyTitle?: string
+  legendPosition?: "top" | "bottom" | "left" | "right"
+  legend?: (data : any) => React.ReactNode
 };
 
 const PieChart = ({
@@ -50,6 +52,8 @@ const PieChart = ({
   sectorStrokeWidthThreshold,
   title,
   emptyTitle,
+  legendPosition,
+  legend,
 }: PieChartProps) => {
 
   const {width, height} = useWindowDimensions()
@@ -61,6 +65,13 @@ const PieChart = ({
   const dynamicRadius = radius * Math.min(width, height) * 0.01
   const padding = safeStrokeWidth + safeLabelDistance * 2 +  dynamicRadius * 0.1
   const chartTitle = title ?? "pie chart"
+
+  const flexDirection = ({
+    top: "column-reverse",
+    bottom: "column",
+    left: "row-reverse",
+    right: "row"
+  } as const)[legendPosition ?? "bottom"]
   
   // Render all required sectors if the length of validatedData > 1
   // Render SingleSector if the amount of to be rendered sectors ends up as 1
@@ -70,64 +81,77 @@ const PieChart = ({
     if (sectorData.length > 1) {
 
       return (
-        <View style={{alignItems: "center", justifyContent: "center"}} accessible={true} accessibilityLabel={`${chartTitle}. ${generatedLabel}`} accessibilityRole={"image"}>
-          <Svg
-            width={dynamicRadius * 2}
-            height={dynamicRadius * 2}
-            viewBox={`${-padding} ${-padding}  ${dynamicRadius * 2 + padding * 2} ${dynamicRadius * 2 + padding * 2}`}
-            aria-hidden={true}
-            >
-            {sectorData.map((obj) => (
-              <Sector
-              startX={dynamicRadius}
-              startY={dynamicRadius}
-              startAngle={obj.startAngle}
-              endAngle={obj.endAngle}
-              radius={dynamicRadius}
-              stroke={stroke}
-                strokeWidth={obj.strokeWidth}
-                fill={obj.fill}
-                label={obj.label}
-                showLabels={showLabels}
-                labelFont={labelFont}
-                labelFontSize={labelFontSize}
-                labelDistance={labelDistance}
-                key={obj.key}
-                />   
-              ))}
+        <View style={{alignItems: "center", justifyContent: "center", flexDirection: flexDirection}} accessible={true} accessibilityLabel={`${chartTitle}. ${generatedLabel}`} accessibilityRole={"image"}>
+          <View>
+            <Svg
+              width={dynamicRadius * 2}
+              height={dynamicRadius * 2}
+              viewBox={`${-padding} ${-padding}  ${dynamicRadius * 2 + padding * 2} ${dynamicRadius * 2 + padding * 2}`}
+              aria-hidden={true}
+              >
+              {sectorData.map((obj) => (
+                <Sector
+                startX={dynamicRadius}
+                startY={dynamicRadius}
+                startAngle={obj.startAngle}
+                endAngle={obj.endAngle}
+                radius={dynamicRadius}
+                stroke={stroke}
+                  strokeWidth={obj.strokeWidth}
+                  fill={obj.fill}
+                  label={obj.label}
+                  showLabels={showLabels}
+                  labelFont={labelFont}
+                  labelFontSize={labelFontSize}
+                  labelDistance={labelDistance}
+                  key={obj.key}
+                  />   
+                ))}
 
-            {lineData.map((line) => (
-             
-              <SectorLine
-                startX={line.startX}
-                startY={line.startY}
-                centerX={dynamicRadius}
-                centerY={dynamicRadius}
-                endX={line.endX}
-                endY={line.endY}
-                radius={line.radius}
-                sectorAngle={line.sectorAngle}
-                sectorStroke={line.sectorStroke}
-                sectorStrokeWidth={safeSectorStrokeWidth}
-                sectorStrokeWidthThreshold={sectorStrokeWidthThreshold}
-                key={line.key}
-              />
-            ))}
-          </Svg>
+              {lineData.map((line) => (
+              
+                <SectorLine
+                  startX={line.startX}
+                  startY={line.startY}
+                  centerX={dynamicRadius}
+                  centerY={dynamicRadius}
+                  endX={line.endX}
+                  endY={line.endY}
+                  radius={line.radius}
+                  sectorAngle={line.sectorAngle}
+                  sectorStroke={line.sectorStroke}
+                  sectorStrokeWidth={safeSectorStrokeWidth}
+                  sectorStrokeWidthThreshold={sectorStrokeWidthThreshold}
+                  key={line.key}
+                  />
+              ))}
+            </Svg>
+          </View>
+          {legend && legend(sectorData)}
+          
         </View>
       );
     } else if (sectorData.length === 1){
       const { fill, group, label} = sectorData[0]
+      const data = [{group: group, fill: fill, label: label }]
         return (
-    <SingleSector data={[{group: group, fill: fill, label: label }]} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}, ${generatedLabel}`} />
+          <View>
+            <SingleSector data={data} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}, ${generatedLabel}`} />
+            {legend && legend(data)}          
+          </View>
+    
   )
     }
 } else if (validatedData.length === 1) {
   const { fill, group, value} = validatedData[0]
   const label = labelType === "percentage" ? "100%" : value.toString()
+  const data = [{group: group, fill: fill, label: label }]
 
   return (
-    <SingleSector data={[{group: group, fill: fill, label: label }]} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}. ${group}: ${label}` }/>
+    <View>
+      <SingleSector data={data} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}. ${group}: ${label}` }/>
+      {legend && legend(data)}
+    </View>
   )
 } else {
     return (
