@@ -2,30 +2,21 @@ import { Path, Text } from "react-native-svg"
 import computeSector from "../utils/PieChart/computeSector"
 
 type SectorProps = {
-	/** Drawing startpoint x */
 	startX: number
-	/** Drawing startpoint y */
 	startY: number
-	/**0-360 */
+	/** 0-360 */
 	startAngle: number
-	/**0-360 */
+	/** 0-360 */
 	endAngle: number
-	/**Sector size */
 	radius: number
-	/**Stroke color (optional)*/
 	stroke?: string
-	/**Strokewidth of Sector (optional) */
 	strokeWidth?: number
-	/**Color fill */
 	fill?: string
 	showLabels: boolean
-	/**Displayed label */
 	label?: number | string
-	/**Font used for labels (optional) */
 	labelFont?: string
-	/**Label font size (optional) */
 	labelFontSize?: number
-	/**Distance between circle midpoint and label (optional)*/
+	/** Distance multiplier for label placement from center */
 	labelDistance?: number
 }
 
@@ -48,18 +39,7 @@ type SectorProps = {
  * @param props.labelFontSize - Optional font size for the label
  * @param props.labelDistance - Optional distance multiplier for label placement
  *
- * @returns JSX.Element
  *
- * Renders:
- * 1. <Path /> - The actual SVG arc for the sector
- *    - Uses startX/startY as the center
- *    - Uses startAngle, endAngle, and radius to draw the arc
- *    - lineX, lineY: offset to arc start from center
- *    - arcEndX, arcEndY: offset from start point to arc end
- *    - largeArcFlag: determines if the arc is > 180°
- * 2. <Text /> (optional) - Label positioned at the midpoint of the sector
- *    - labelX, labelY: calculated coordinates for label placement
- *    - fontSize: calculated or default font size
  */
 
 const Sector = ({
@@ -96,9 +76,9 @@ const Sector = ({
 						? `M${startX} ${startY} m${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z `
 						: `M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z `
 				}
-				stroke={stroke ? stroke : "black"}
+				stroke={stroke ?? "black"}
 				strokeWidth={strokeWidth ?? 0}
-				fill={fill ? fill : "none"}
+				fill={fill ?? "none"}
 				accessible={false}
 			/>
 			{showLabels && (
