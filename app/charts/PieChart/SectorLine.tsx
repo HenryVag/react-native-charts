@@ -49,7 +49,7 @@ const SectorLine = ({
 	sectorStrokeWidthThreshold,
 }: SectorLineProps) => {
 	return (
-		sectorAngle >= (sectorStrokeWidthThreshold || 361) && (
+		sectorAngle >= (sectorStrokeWidthThreshold ?? 361) && (
 			<Path
 				d={`M${startX} ${startY} L${centerX} ${centerY} l ${endX} ${endY} `}
 				stroke={sectorStroke ?? "black"}
