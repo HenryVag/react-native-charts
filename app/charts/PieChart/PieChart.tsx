@@ -14,6 +14,7 @@ type PieChartProps = {
   radius: number;
   /**Show labels (optional) */
   showLabels: boolean;
+  labelType?: "value" | "percentage";
   /**Stroke color */
   stroke?: string;
   /**Default strokewidth (optional)*/
@@ -40,6 +41,7 @@ const PieChart = ({
   stroke,
   strokeWidth,
   showLabels,
+  labelType,
   labelFont,
   labelFontSize,
   labelDistance,
@@ -54,6 +56,7 @@ const PieChart = ({
   const safeStrokeWidth = strokeWidth ? Math.min(width, height) * strokeWidth * 0.002 : 0
   const safeSectorStrokeWidth = sectorStrokeWidth ? Math.min(width, height) * sectorStrokeWidth * 0.002 : 0
   const safeLabelDistance = labelDistance ?? 0
+  const safeLabelType = labelType ?? "value"
   const validatedData = useMemo(() => filterData(data), [data])
   const dynamicRadius = radius * Math.min(width, height) * 0.01
   const padding = safeStrokeWidth + safeLabelDistance * 2 +  dynamicRadius * 0.1
@@ -62,7 +65,7 @@ const PieChart = ({
   // Render all required sectors if the length of validatedData > 1
   // Render SingleSector if the amount of to be rendered sectors ends up as 1
   if (validatedData.length > 1) {
-    let { sectorData, lineData } = computePieChart(validatedData, dynamicRadius, safeStrokeWidth, labelFontSize, sectorStroke);
+    let { sectorData, lineData } = computePieChart(validatedData, dynamicRadius, safeStrokeWidth, safeLabelType, labelFontSize, sectorStroke);
     const generatedLabel = sectorData.map((obj) => `${obj.group}: ${obj.label}`).join(", ")
     if (sectorData.length > 1) {
 
@@ -114,16 +117,17 @@ const PieChart = ({
         </View>
       );
     } else if (sectorData.length === 1){
-      const sectorValue = Number(sectorData[0].label)
-      const sectorFill = sectorData[0].fill
-      const sectorGroup = sectorData[0].group
+      const { fill, group, label} = sectorData[0]
         return (
-    <SingleSector data={[{group: sectorGroup, value: sectorValue, fill: sectorFill }]} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}, ${generatedLabel}`} />
+    <SingleSector data={[{group: group, fill: fill, label: label }]} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}, ${generatedLabel}`} />
   )
     }
 } else if (validatedData.length === 1) {
+  const { fill, group, value} = validatedData[0]
+  const label = labelType === "percentage" ? "100%" : value.toString()
+
   return (
-    <SingleSector data={validatedData} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}. ${validatedData[0].group}: ${validatedData[0].value}` }/>
+    <SingleSector data={[{group: group, fill: fill, label: label }]} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}. ${group}: ${label}` }/>
   )
 } else {
     return (
