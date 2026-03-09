@@ -172,7 +172,7 @@ const sortToOther = (
 
 	const otherSectorVal = smallSectors.reduce((acc, curr) => acc + curr.value, 0)
 
-	const otherSectorFill = smallSectors[0]?.fill ?? "none"
+	const otherSectorFill = smallSectors[0]?.fill ?? undefined
 	const otherSector = {
 		group: "Other",
 		value: otherSectorVal,
