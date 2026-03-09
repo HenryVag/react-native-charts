@@ -110,6 +110,7 @@ export const computePieChart = (
 			sectorData.push(sector)
 			lineData.push(line)
 		} else {
+			// Exclude this sector and reduce the total so that remaining sectors take up the missing space.
 			totalChartValue = totalChartValue - obj.value
 		}
 	})
