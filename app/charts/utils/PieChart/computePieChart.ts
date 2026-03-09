@@ -36,8 +36,8 @@ const computePieChart = (
   data: { group: string; value: number; fill?: string }[],
   radius: number, strokeWidth: number, labelType: "value" | "percentage", labelFontSize?:number | undefined, sectorStroke?: string,
 ) => {
-  let sectorData: SectorDataProps[] = [];
-  let lineData: LineDataProps[] = [];
+  const sectorData: SectorDataProps[] = [];
+  const lineData: LineDataProps[] = [];
 
   let startAngle = 90;
 
@@ -61,7 +61,7 @@ const computePieChart = (
   allSectors = sortByValueAscending(allSectors)
   //Defines endangle, label (if it fits) and the total angle size of the sector 
   allSectors.forEach((obj, i) => {
-    let endAngle = calculateEndAngle(startAngle, obj.value, totalChartValue);
+    const endAngle = calculateEndAngle(startAngle, obj.value, totalChartValue);
     const sectorAngle = endAngle - startAngle;
     let label = setLabel(obj.value, labelType, sectorAngle)
     if (labelFontSize && sectorAngle < estLabelWidth(labelFontSize, label)) {
@@ -86,8 +86,8 @@ const computePieChart = (
       const group = obj.group
       
      
-      let sector = { radius, strokeWidth, startAngle, endAngle, label, fill, key, group };
-      let line = {
+      const sector = { radius, strokeWidth, startAngle, endAngle, label, fill, key, group };
+      const line = {
         radius,
         startX,
         startY,
@@ -115,7 +115,7 @@ const calculateEndAngle = (
   answeredQst: number,
   answeredTotal: number,
 ) => {
-  let endAngle = (answeredQst / answeredTotal) * 360 + startAngle;
+  const endAngle = (answeredQst / answeredTotal) * 360 + startAngle;
   return endAngle;
 }
 
@@ -137,14 +137,14 @@ export const setLabel = (value: number, labelType: "value" | "percentage", angle
 }
 
 const sortByValueAscending = (data: { group: string; value: number }[]) => {
-  let dataAscending = data.sort((a, b) => a.value - b.value);
+  const dataAscending = data.sort((a, b) => a.value - b.value);
   dataAscending.forEach((d) => {});
 
   return dataAscending;
 }
 
 export const countTotalChartValue = (data: { group:string; value:number}[]) => {
-    let totalChartValue = data.reduce(function (acc, curr) {
+    const totalChartValue = data.reduce(function (acc, curr) {
     return (acc += curr.value);
   }, 0);
   return totalChartValue

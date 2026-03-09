@@ -77,7 +77,7 @@ const Sector = ({
   labelFontSize,
   labelDistance,
 }: SectorProps) => {
-  let {
+  const {
     lineX,
     lineY,
     largeArcFlag,

@@ -28,31 +28,31 @@ const computeSector = (
   labelDistance?: number,
 )  => {
   //End angle in radians 
-  let endAngleRad = convertToRad(endAngle);
+  const endAngleRad = convertToRad(endAngle);
 
-  let fontSize = labelfontSize ? labelfontSize * radius * 0.0225 : radius * 0.225;
+  const fontSize = labelfontSize ? labelfontSize * radius * 0.0225 : radius * 0.225;
   const labelDst = labelDistance ?? 1;
 
   //Drawing startpoints
-  let lineX = calcPointX(radius, startAngle);
-  let lineY = calcPointY(radius, startAngle);
+  const lineX = calcPointX(radius, startAngle);
+  const lineY = calcPointY(radius, startAngle);
 
   //Largearcflag is set to prevent incorrect drawing of sectors over 180 degrees
-  let largeArcFlag = endAngle - startAngle < 180 ? 0 : 1;
+  const largeArcFlag = endAngle - startAngle < 180 ? 0 : 1;
 
   //End points of the arc
-  let arcEndX = isZero(radius * Math.cos(endAngleRad) - lineX);
-  let arcEndY = isZero(radius * Math.sin(endAngleRad) - lineY);
+  const arcEndX = isZero(radius * Math.cos(endAngleRad) - lineX);
+  const arcEndY = isZero(radius * Math.sin(endAngleRad) - lineY);
 
-  let midAngle = (startAngle + endAngle) / 2;
+  const midAngle = (startAngle + endAngle) / 2;
 
   //Calculate label position to be in the middle of a sector
-  let labelX =
+  const labelX =
     radius + calcPointX(1 + radius * labelDst, midAngle) / 2 ;
-  let labelY =
+  const labelY =
     radius - calcPointY(1 + radius * labelDst, midAngle) / 2 + fontSize / 2;
 
-  let sectorParams = {
+  const sectorParams = {
     lineX,
     lineY,
     largeArcFlag,
@@ -79,14 +79,14 @@ const isZero = (num: number) => {
 
 /**Calculates the X coordinates of a point on the arc based on the angle*/
 export const calcPointX = (radius: number, angle: number) => {
-  let angleRad = convertToRad(angle);
+  const angleRad = convertToRad(angle);
 
   return isZero(radius * Math.cos(angleRad));
 }
 
 /**Calculates the Y coordinates of a point on the arc based on the angle*/
 export const calcPointY = (radius: number, angle: number) =>{
-  let angleRad = convertToRad(angle);
+  const angleRad = convertToRad(angle);
   return isZero(radius * Math.sin(angleRad));
 }
 
