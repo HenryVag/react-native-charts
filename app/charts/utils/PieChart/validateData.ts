@@ -4,7 +4,7 @@
  * @returns Array of objects that have a finite number value > 0
  */
 
-const filterData = (inputArr: unknown) => {
+export const filterData = (inputArr: unknown) => {
 	//Check if input is of type: Array
 	if (!Array.isArray(inputArr)) {
 		console.warn(
@@ -63,5 +63,3 @@ const filterData = (inputArr: unknown) => {
 
 	return acceptedArr
 }
-
-export default filterData
