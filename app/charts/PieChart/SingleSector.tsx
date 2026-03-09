@@ -2,20 +2,20 @@ import { View } from "react-native"
 import Svg, { Circle, Text } from "react-native-svg"
 
 type SingleSectorProps = {
-    data: {group?: string, value: number, fill?: string}[]
+    data: {group?: string, fill?: string, label: string}[]
     radius: number
     padding: number
     stroke?: string
     strokeWidth?: number
     labelFont?: string
     labelFontSize?: number
-    showLabels?: boolean
+    showLabels: boolean
     title?: string
 }
 
 /**
  * Renders a single sector (full circle) for PieChart
- * @param data - array with a single object { value: number, fill?: string }
+ * @param data - array with a single object {  group?: string, fill?: string, label: string }
  * @param radius - size of the circle
  * @param padding - padding between chart and container
  * @param stroke - circle border color
@@ -38,7 +38,7 @@ const SingleSector = ({data, radius, padding, stroke, strokeWidth, labelFont, la
                 
                 >
                 <Circle cx={radius} cy={radius} r={radius} stroke={stroke ?? "black"} strokeWidth={strokeWidth} fill={data[0].fill ?? "grey"} accessible={false}  />
-                { showLabels && <Text fontFamily={labelFont} fontSize={labelFontSize ? labelFontSize * radius * 0.0225 : radius * 0.225} x={radius} y={radius} textAnchor="middle" accessible={false}>{data[0].value} </Text>}    
+                { showLabels && <Text fontFamily={labelFont} fontSize={labelFontSize ? labelFontSize * radius * 0.0225 : radius * 0.225} x={radius} y={radius} textAnchor="middle" accessible={false}>{data[0].label} </Text>}    
             </Svg>
         </View>
     )
