@@ -135,7 +135,7 @@ const PieChart = ({
       const { fill, group, label} = sectorData[0]
       const data = [{group: group, fill: fill, label: label }]
         return (
-          <View>
+          <View style={{alignItems: "center", justifyContent: "center", flexDirection: flexDirection}}>
             <SingleSector data={data} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}, ${generatedLabel}`} />
             {legend && legend(data)}          
           </View>
@@ -148,7 +148,7 @@ const PieChart = ({
   const data = [{group: group, fill: fill, label: label }]
 
   return (
-    <View>
+    <View style={{alignItems: "center", justifyContent: "center", flexDirection: flexDirection}}>
       <SingleSector data={data} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}. ${group}: ${label}` }/>
       {legend && legend(data)}
     </View>
