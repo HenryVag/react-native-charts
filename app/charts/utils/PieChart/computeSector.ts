@@ -9,7 +9,7 @@
  *
  */
 
-const computeSector = (
+export const computeSector = (
 	startAngle: number,
 	endAngle: number,
 	radius: number,
@@ -79,5 +79,3 @@ export const calcPointY = (radius: number, angle: number) => {
 	const angleRad = convertToRad(angle)
 	return isZero(radius * Math.sin(angleRad))
 }
-
-export default computeSector

@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react"
 import { useWindowDimensions, View } from "react-native"
 import Svg from "react-native-svg"
-import computePieChart from "../utils/PieChart/computePieChart"
+import { computePieChart } from "../utils/PieChart/computePieChart"
 import filterData from "../utils/PieChart/validateData"
 import PieChartPlaceHolder from "./PieChartPlaceholder"
 import Sector from "./Sector"

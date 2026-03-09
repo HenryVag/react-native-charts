@@ -1,4 +1,4 @@
-const DEFAULT_COLORS = [
+export const DEFAULT_COLORS = [
 	"#4E79A7",
 	"#F28E2B",
 	"#E15759",
@@ -10,5 +10,3 @@ const DEFAULT_COLORS = [
 	"#9C755F",
 	"#BAB0AC",
 ]
-
-export default DEFAULT_COLORS

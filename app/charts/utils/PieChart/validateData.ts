@@ -5,14 +5,12 @@
  */
 
 const filterData = (inputArr: unknown) => {
-	const emptyArr: [] = []
-
 	//Check if input is of type: Array
 	if (!Array.isArray(inputArr)) {
 		console.warn(
 			"Piechart input data is not of type: Array. Rendering placeholder instead.",
 		)
-		return emptyArr
+		return []
 	}
 
 	//Create new array from the objects in inputArr that contain the key: "value" that matches the criteria

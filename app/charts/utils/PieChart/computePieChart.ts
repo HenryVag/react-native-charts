@@ -1,5 +1,5 @@
 import { calcPointX, calcPointY } from "./computeSector"
-import DEFAULT_COLORS from "./defaultColors"
+import { DEFAULT_COLORS } from "./defaultColors"
 
 type SectorDataProps = {
 	radius: number
@@ -30,7 +30,7 @@ type LineDataProps = {
  *  - lineData: Array of sector radius line parameters {radius, startX, startY, endX, endY, sectorAngle, sectorStroke, key}
  */
 
-const computePieChart = (
+export const computePieChart = (
 	data: { group: string; value: number; fill?: string }[],
 	radius: number,
 	strokeWidth: number,
@@ -180,5 +180,3 @@ const sortToOther = (
 
 	return otherSector
 }
-
-export default computePieChart
