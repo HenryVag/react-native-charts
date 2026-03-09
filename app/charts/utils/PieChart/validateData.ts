@@ -4,7 +4,7 @@
  * @returns Array of objects that have a finite number value > 0
  */
 
-const filterData = (inputArr: any) => {
+const filterData = (inputArr: unknown) => {
 
     const emptyArr: [] = []
 
