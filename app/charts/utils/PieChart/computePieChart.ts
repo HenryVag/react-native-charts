@@ -1,5 +1,3 @@
-// Calculates all necessary values for the PieChart component
-
 import { calcPointX, calcPointY } from "./computeSector"
 import DEFAULT_COLORS from "./defaultColors"
 

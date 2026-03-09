@@ -6,23 +6,12 @@
  * @param radius - Radius of the sector
  * @param labelfontSize - Optional font size for the label
  * @param labelDistance - Optional distance factor for the label from the center
- * @returns Object containing:
- *   - lineX: X-coordinate of the line from center to start of the arc
- *   - lineY: Y-coordinate of the line from center to start of the arc
- *   - largeArcFlag: 0 or 1, used in SVG path to handle arcs > 180°
- *   - arcEndX: X-coordinate of the end point of the arc relative to start point
- *   - arcEndY: Y-coordinate of the end point of the arc relative to start point
- *   - labelX: X-coordinate of the label (centered in the sector)
- *   - labelY: Y-coordinate of the label (centered in the sector)
- *   - fontSize: Computed font size for the label
+ *
  */
 
 const computeSector = (
-	/**0-360 */
 	startAngle: number,
-	/**0-360 */
 	endAngle: number,
-	/**Sector size */
 	radius: number,
 	labelfontSize?: number,
 	labelDistance?: number,
