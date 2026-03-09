@@ -34,7 +34,7 @@ type PieChartProps = {
   title?: string;
   emptyTitle?: string
   legendPosition?: "top" | "bottom" | "left" | "right"
-  legend?: (data : any) => React.ReactNode
+  legend?: (data : {group?: string, fill?: string, label: string}[] ) => React.ReactNode
 };
 
 const PieChart = ({
