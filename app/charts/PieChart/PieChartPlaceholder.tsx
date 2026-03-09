@@ -3,6 +3,7 @@ import Svg, { Circle } from "react-native-svg";
 
 type PieChartPlaceHolderProps = {
     radius: number;
+    padding: number;
     strokeWidth?: number;
     stroke?:string;
     placeHolderFill?: string;
@@ -24,8 +25,8 @@ type PieChartPlaceHolderProps = {
  * @returns JSX.Element - An SVG circle acting as a placeholder
  */
 
-const PieChartPlaceHolder = ({radius, strokeWidth, stroke, placeHolderFill, title}: PieChartPlaceHolderProps ) => {
-    const padding = radius * 0.1
+const PieChartPlaceHolder = ({radius, padding, strokeWidth, stroke, placeHolderFill, title}: PieChartPlaceHolderProps ) => {
+    
     return(
         <View accessible={true} accessibilityLabel={title ?? "No chart data available"} accessibilityRole={"image"}>
             <Svg width={radius * 2}
@@ -34,7 +35,7 @@ const PieChartPlaceHolder = ({radius, strokeWidth, stroke, placeHolderFill, titl
                  accessible={false}
                 aria-hidden={true}
                 >
-            <Circle cx={radius} cy={radius} r={radius} strokeWidth={strokeWidth} stroke={stroke} fill={placeHolderFill ?? "#E5E7EB"} accessible={false} />
+                <Circle cx={radius} cy={radius} r={radius} strokeWidth={strokeWidth} stroke={stroke} fill={placeHolderFill ?? "#E5E7EB"} accessible={false} />
             </Svg>
         </View>
     )
