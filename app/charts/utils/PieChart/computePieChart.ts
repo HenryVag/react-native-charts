@@ -8,7 +8,7 @@ type SectorDataProps = {
   startAngle: number;
   endAngle: number;
   fill: string;
-  label: string | undefined;
+  label: string;
   strokeWidth: number;
   key: number;
   group?: string
@@ -34,7 +34,7 @@ type LineDataProps = {
 
 const computePieChart = (
   data: { group: string; value: number; fill?: string }[],
-  radius: number, strokeWidth: number, labelFontSize?:number | undefined, sectorStroke?: string,
+  radius: number, strokeWidth: number, labelType: "value" | "percentage", labelFontSize?:number | undefined, sectorStroke?: string,
 ) => {
   let sectorData: SectorDataProps[] = [];
   let lineData: LineDataProps[] = [];
@@ -51,18 +51,24 @@ const computePieChart = (
 
   //Add the normal and "other" sectors into an array and sort them by ascending order.
   let allSectors: { group: string; value: number; fill?: string }[] = []
-  allSectors = [...sectors, otherSector]
+
+  if (otherSector) {
+    allSectors = [...sectors, otherSector]
+  } else {
+    allSectors = [...sectors]
+  }
+
   allSectors = sortByValueAscending(allSectors)
-  
   //Defines endangle, label (if it fits) and the total angle size of the sector 
   allSectors.forEach((obj, i) => {
     let endAngle = calculateEndAngle(startAngle, obj.value, totalChartValue);
-    let label: string | undefined = obj.value.toString()
     const sectorAngle = endAngle - startAngle;
+    let label = setLabel(obj.value, labelType, sectorAngle)
     if (labelFontSize && sectorAngle < estLabelWidth(labelFontSize, label)) {
 
-      label = undefined;
+      label = "";
     } 
+    
 
     // Returns sectors and their radii lines that consist of 2% of the chart, excludes e.g. the "other" sector if it does not meet this criteria.
     // 7.2 / 360 = 2%
@@ -79,7 +85,7 @@ const computePieChart = (
 
       const group = obj.group
       
-      
+     
       let sector = { radius, strokeWidth, startAngle, endAngle, label, fill, key, group };
       let line = {
         radius,
@@ -120,6 +126,16 @@ export const estLabelWidth = (labelFontSize:number, label:string) => {
   return labelFontSize * labelLen - labelFontSize / 2
 }
 
+export const setLabel = (value: number, labelType: "value" | "percentage", angle: number) => {
+  let returnVal = value.toString()
+  if (labelType === "percentage") {
+  const percentage = Math.round(angle / 360 * 100 * 10) / 10
+  
+  returnVal = percentage.toString() + "%"
+  } 
+  return returnVal
+}
+
 const sortByValueAscending = (data: { group: string; value: number }[]) => {
   let dataAscending = data.sort((a, b) => a.value - b.value);
   dataAscending.forEach((d) => {});
@@ -136,15 +152,16 @@ export const countTotalChartValue = (data: { group:string; value:number}[]) => {
 
 /**Combines all sectors that are smaller than 2% of the charts total value into a single "Other" sector */
 const sortToOther = (data: {group: string, value: number, fill?:string}[]) => {
-  let totalChartValue = countTotalChartValue(data)
+  const totalChartValue = countTotalChartValue(data)
  
   const smallSectors = data.filter((sector)=> sector.value / totalChartValue < 0.02 )
-  const otherSectorGroup = "Other"
-  const otherSectorVal = smallSectors.reduce( (acc, curr) => acc + curr.value, 0
-  )
+  if (smallSectors.length === 0) return null
+
+  const otherSectorVal = smallSectors.reduce( (acc, curr) => acc + curr.value, 0)
 
   const otherSectorFill = smallSectors[0]?.fill ?? "none"
-  const otherSector = {group: otherSectorGroup, value: otherSectorVal, fill: otherSectorFill}
+  const otherSector = {group: "Other", value: otherSectorVal, fill: otherSectorFill}
+
 
   return otherSector
 }
