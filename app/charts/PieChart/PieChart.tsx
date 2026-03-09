@@ -4,7 +4,8 @@ import Svg from "react-native-svg";
 import computePieChart from "../utils/PieChart/computePieChart";
 import filterData from "../utils/PieChart/validateData";
 import PieChartPlaceHolder from "./PieChartPlaceholder";
-import Sector, { SectorLine } from "./Sector";
+import Sector from "./Sector";
+import SectorLine from "./SectorLine";
 import SingleSector from "./SingleSector";
 
 type PieChartProps = {
