@@ -59,7 +59,7 @@ export const filterData = (inputArr: unknown) => {
 		}
 
 		return hasValidValue
-	})
+	}) as { group?: string; value: number; fill?: string }[]
 
 	return acceptedArr
 }
