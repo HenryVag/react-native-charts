@@ -18,6 +18,7 @@ type PieChartProps = {
 	labelFont?: string
 	labelFontSize?: number
 	labelDistance?: number
+	otherSectorLabel?: string
 	sectorStroke?: string
 	sectorStrokeWidth: number
 	sectorStrokeWidthThreshold?: number
@@ -39,6 +40,7 @@ const PieChart = ({
 	labelFont,
 	labelFontSize,
 	labelDistance,
+	otherSectorLabel,
 	sectorStroke,
 	sectorStrokeWidth,
 	sectorStrokeWidthThreshold,
@@ -77,6 +79,7 @@ const PieChart = ({
 			safeStrokeWidth,
 			safeLabelType,
 			labelFontSize,
+			otherSectorLabel,
 			sectorStroke,
 		)
 		const generatedLabel = sectorData

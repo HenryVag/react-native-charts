@@ -36,6 +36,7 @@ export const computePieChart = (
 	strokeWidth: number,
 	labelType: "value" | "percentage",
 	labelFontSize?: number | undefined,
+	otherSectorLabel?: string,
 	sectorStroke?: string,
 ) => {
 	const sectorData: SectorDataProps[] = []
@@ -49,7 +50,7 @@ export const computePieChart = (
 	const sectors = data.filter((sector) => sector.value / totalChartValue > 0.02)
 
 	//Combine all sectors smaller than 2% of the total charts value into a "other" sector.
-	const otherSector = sortToOther(data)
+	const otherSector = sortToOther(data, otherSectorLabel)
 
 	//Add the normal and "other" sectors into an array and sort them by ascending order.
 	let allSectors: { group?: string; value: number; fill?: string }[] = []
@@ -162,6 +163,7 @@ export const countTotalChartValue = (
 /**Combines all sectors that are smaller than 2% of the charts total value into a single "Other" sector */
 const sortToOther = (
 	data: { group?: string; value: number; fill?: string }[],
+	otherSectorLabel?: string,
 ) => {
 	const totalChartValue = countTotalChartValue(data)
 
@@ -174,7 +176,7 @@ const sortToOther = (
 
 	const otherSectorFill = smallSectors[0]?.fill ?? undefined
 	const otherSector = {
-		group: "Other",
+		group: otherSectorLabel ?? "Other",
 		value: otherSectorVal,
 		fill: otherSectorFill,
 	}
