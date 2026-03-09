@@ -9,29 +9,18 @@ import SectorLine from "./SectorLine";
 import SingleSector from "./SingleSector";
 
 type PieChartProps = {
-  /**Expects an array of objects */
   data: { group?: string; value: number, fill?:string; }[];
-  /**Size of PieChart */
   radius: number;
-  /**Show labels (optional) */
   showLabels: boolean;
   labelType?: "value" | "percentage";
-  /**Stroke color */
   stroke?: string;
-  /**Default strokewidth (optional)*/
   strokeWidth?: number;
-  /**Font used for labels (optional) */
   labelFont?: string;
-  /**Label font size (optional) */
   labelFontSize?: number;
-  /**Distance between PieChart center and label (optional) */
   labelDistance?: number;
-  /**Color of sector radius lines (optional) */
   sectorStroke?: string;
   sectorStrokeWidth: number
-  /**Threshold in degrees to change sector radius strokewidth (optional)*/
   sectorStrokeWidthThreshold?: number;
-  /**Used as first part of the screen reader label, falls back to English if not provided */
   title?: string;
   emptyTitle?: string
   legendPosition?: "top" | "bottom" | "left" | "right"
@@ -74,8 +63,6 @@ const PieChart = ({
     right: "row"
   } as const)[legendPosition ?? "bottom"]
   
-  // Render all required sectors if the length of validatedData > 1
-  // Render SingleSector if the amount of to be rendered sectors ends up as 1
   if (validatedData.length > 1) {
     let { sectorData, lineData } = computePieChart(validatedData, dynamicRadius, safeStrokeWidth, safeLabelType, labelFontSize, sectorStroke);
     const generatedLabel = sectorData.map((obj) => `${obj.group}: ${obj.label}`).join(", ")
@@ -132,6 +119,7 @@ const PieChart = ({
           
         </View>
       );
+      // Occurs when all but one sector are filtered out by the 2% minimum threshold
     } else if (sectorData.length === 1){
       const { fill, group, label} = sectorData[0]
       const data = [{group: group, fill: fill, label: label }]
@@ -156,38 +144,24 @@ const PieChart = ({
   )
 } else {
     return (
-      <PieChartPlaceHolder radius={dynamicRadius} strokeWidth={safeStrokeWidth} stroke={stroke} title={emptyTitle} />
+      <PieChartPlaceHolder radius={dynamicRadius} padding={padding} strokeWidth={safeStrokeWidth} stroke={stroke} title={emptyTitle} />
     )
   }
 }
 
 /**
- * PieChart component
+ * Renders a pie chart from an array of data objects that are rendered as sectors.
+ * - Multiple valid sectors → full pie chart with labels and sector lines
+ * - One valid sector → SingleSector (full circle)
+ * - No valid data → PieChartPlaceholder
  *
- * Renders a pie chart based on the provided data. Depending on the input:
- * - If validated data has more than one sector, renders a full PieChart with Sector and SectorLine components.
- * - If only one valid sector exists, renders a SingleSector component.
- * - If no valid data exists, renders a PieChartPlaceHolder component.
- *
- * Uses `useMemo` to filter and validate input data to prevent unnecessary re-renders.
- *
- * Props:
- * @param data Array of objects with { group?: string, value: number, fill?: string }.
- * @param radius Size of the PieChart (radius).
- * @param showLabels Whether to display sector labels.
- * @param stroke Optional stroke color for sectors.
- * @param strokeWidth Optional default stroke width.
- * @param labelFont Optional font family for labels.
- * @param labelFontSize Optional font size for labels.
- * @param labelDistance Optional distance from the center for labels.
- * @param sectorStroke Optional color for sector radius lines.
- * @param sectorStrokeWidth Width of sector radius lines.
- * @param sectorStrokeWidthThreshold Threshold in degrees for increasing sector stroke width.
- *
- * Returns:
- * JSX.Element – a View containing:
- * - Svg with multiple Sector and SectorLine elements if multiple sectors exist,
- * - SingleSector if only one sector,
- * - PieChartPlaceHolder if no valid data.
+ * @param data - Array of { value, group?, fill? } objects
+ * @param radius - Controls chart size, scaled against screen dimensions
+ * @param showLabels - Whether to display labels on sectors
+ * @param labelType - Display labels as "value" or "percentage"
+ * @param sectorStrokeWidthThreshold - Minimum sector angle (degrees) before radius lines are drawn for that sector
+ * @param legend - Optional render function receiving the computed sector data
+ * @param title - Accessibility label for the chart when data is present
+ * @param emptyTitle - Accessibility label shown when no valid data exists
  */
 export default memo(PieChart)
