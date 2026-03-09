@@ -1,4 +1,4 @@
-import { calcPointX, calcPointY } from "./computeSector"
+import { calcPointX, calcPointY } from "./compute-sector"
 import { DEFAULT_COLORS } from "./defaultColors"
 
 type SectorDataProps = {

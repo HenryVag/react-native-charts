@@ -1,12 +1,12 @@
 import { memo, useMemo } from "react"
 import { useWindowDimensions, View } from "react-native"
 import Svg from "react-native-svg"
-import { computePieChart } from "../utils/PieChart/computePieChart"
-import { filterData } from "../utils/PieChart/validateData"
-import PieChartPlaceHolder from "./PieChartPlaceholder"
-import Sector from "./Sector"
-import SectorLine from "./SectorLine"
-import SingleSector from "./SingleSector"
+import { computePieChart } from "../utils/piechart/compute-piechart"
+import { filterData } from "../utils/piechart/validate-data"
+import PieChartPlaceHolder from "./piechart-placeholder"
+import Sector from "./sector"
+import SectorLine from "./sector-line"
+import SingleSector from "./single-sector"
 
 type PieChartProps = {
 	data: { group?: string; value: number; fill?: string }[]
