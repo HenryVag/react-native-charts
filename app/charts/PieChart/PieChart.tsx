@@ -1,152 +1,212 @@
-import { memo, useMemo } from "react";
-import { useWindowDimensions, View } from "react-native";
-import Svg from "react-native-svg";
-import computePieChart from "../utils/PieChart/computePieChart";
-import filterData from "../utils/PieChart/validateData";
-import PieChartPlaceHolder from "./PieChartPlaceholder";
-import Sector from "./Sector";
-import SectorLine from "./SectorLine";
-import SingleSector from "./SingleSector";
+import { memo, useMemo } from "react"
+import { useWindowDimensions, View } from "react-native"
+import Svg from "react-native-svg"
+import computePieChart from "../utils/PieChart/computePieChart"
+import filterData from "../utils/PieChart/validateData"
+import PieChartPlaceHolder from "./PieChartPlaceholder"
+import Sector from "./Sector"
+import SectorLine from "./SectorLine"
+import SingleSector from "./SingleSector"
 
 type PieChartProps = {
-  data: { group?: string; value: number, fill?:string; }[];
-  radius: number;
-  showLabels: boolean;
-  labelType?: "value" | "percentage";
-  stroke?: string;
-  strokeWidth?: number;
-  labelFont?: string;
-  labelFontSize?: number;
-  labelDistance?: number;
-  sectorStroke?: string;
-  sectorStrokeWidth: number
-  sectorStrokeWidthThreshold?: number;
-  title?: string;
-  emptyTitle?: string
-  legendPosition?: "top" | "bottom" | "left" | "right"
-  legend?: (data : {group?: string, fill?: string, label: string}[] ) => React.ReactNode
-};
+	data: { group?: string; value: number; fill?: string }[]
+	radius: number
+	showLabels: boolean
+	labelType?: "value" | "percentage"
+	stroke?: string
+	strokeWidth?: number
+	labelFont?: string
+	labelFontSize?: number
+	labelDistance?: number
+	sectorStroke?: string
+	sectorStrokeWidth: number
+	sectorStrokeWidthThreshold?: number
+	title?: string
+	emptyTitle?: string
+	legendPosition?: "top" | "bottom" | "left" | "right"
+	legend?: (
+		data: { group?: string; fill?: string; label: string }[],
+	) => React.ReactNode
+}
 
 const PieChart = ({
-  data,
-  radius,
-  stroke,
-  strokeWidth,
-  showLabels,
-  labelType,
-  labelFont,
-  labelFontSize,
-  labelDistance,
-  sectorStroke,
-  sectorStrokeWidth,
-  sectorStrokeWidthThreshold,
-  title,
-  emptyTitle,
-  legendPosition,
-  legend,
+	data,
+	radius,
+	stroke,
+	strokeWidth,
+	showLabels,
+	labelType,
+	labelFont,
+	labelFontSize,
+	labelDistance,
+	sectorStroke,
+	sectorStrokeWidth,
+	sectorStrokeWidthThreshold,
+	title,
+	emptyTitle,
+	legendPosition,
+	legend,
 }: PieChartProps) => {
+	const { width, height } = useWindowDimensions()
+	const safeStrokeWidth = strokeWidth
+		? Math.min(width, height) * strokeWidth * 0.002
+		: 0
+	const safeSectorStrokeWidth = sectorStrokeWidth
+		? Math.min(width, height) * sectorStrokeWidth * 0.002
+		: 0
+	const safeLabelDistance = labelDistance ?? 0
+	const safeLabelType = labelType ?? "value"
+	const validatedData = useMemo(() => filterData(data), [data])
+	const dynamicRadius = radius * Math.min(width, height) * 0.01
+	const padding = safeStrokeWidth + safeLabelDistance * 2 + dynamicRadius * 0.1
+	const chartTitle = title ?? "pie chart"
 
-  const {width, height} = useWindowDimensions()
-  const safeStrokeWidth = strokeWidth ? Math.min(width, height) * strokeWidth * 0.002 : 0
-  const safeSectorStrokeWidth = sectorStrokeWidth ? Math.min(width, height) * sectorStrokeWidth * 0.002 : 0
-  const safeLabelDistance = labelDistance ?? 0
-  const safeLabelType = labelType ?? "value"
-  const validatedData = useMemo(() => filterData(data), [data])
-  const dynamicRadius = radius * Math.min(width, height) * 0.01
-  const padding = safeStrokeWidth + safeLabelDistance * 2 +  dynamicRadius * 0.1
-  const chartTitle = title ?? "pie chart"
+	const flexDirection = (
+		{
+			top: "column-reverse",
+			bottom: "column",
+			left: "row-reverse",
+			right: "row",
+		} as const
+	)[legendPosition ?? "bottom"]
 
-  const flexDirection = ({
-    top: "column-reverse",
-    bottom: "column",
-    left: "row-reverse",
-    right: "row"
-  } as const)[legendPosition ?? "bottom"]
-  
-  if (validatedData.length > 1) {
-    let { sectorData, lineData } = computePieChart(validatedData, dynamicRadius, safeStrokeWidth, safeLabelType, labelFontSize, sectorStroke);
-    const generatedLabel = sectorData.map((obj) => `${obj.group}: ${obj.label}`).join(", ")
-    if (sectorData.length > 1) {
+	if (validatedData.length > 1) {
+		const { sectorData, lineData } = computePieChart(
+			validatedData,
+			dynamicRadius,
+			safeStrokeWidth,
+			safeLabelType,
+			labelFontSize,
+			sectorStroke,
+		)
+		const generatedLabel = sectorData
+			.map((obj) => `${obj.group}: ${obj.label}`)
+			.join(", ")
+		if (sectorData.length > 1) {
+			return (
+				<View
+					style={{
+						alignItems: "center",
+						justifyContent: "center",
+						flexDirection: flexDirection,
+					}}
+					accessible={true}
+					accessibilityLabel={`${chartTitle}. ${generatedLabel}`}
+					accessibilityRole={"image"}
+				>
+					<View>
+						<Svg
+							width={dynamicRadius * 2}
+							height={dynamicRadius * 2}
+							viewBox={`${-padding} ${-padding}  ${dynamicRadius * 2 + padding * 2} ${dynamicRadius * 2 + padding * 2}`}
+							aria-hidden={true}
+						>
+							{sectorData.map((obj) => (
+								<Sector
+									startX={dynamicRadius}
+									startY={dynamicRadius}
+									startAngle={obj.startAngle}
+									endAngle={obj.endAngle}
+									radius={dynamicRadius}
+									stroke={stroke}
+									strokeWidth={obj.strokeWidth}
+									fill={obj.fill}
+									label={obj.label}
+									showLabels={showLabels}
+									labelFont={labelFont}
+									labelFontSize={labelFontSize}
+									labelDistance={labelDistance}
+									key={obj.key}
+								/>
+							))}
 
-      return (
-        <View style={{alignItems: "center", justifyContent: "center", flexDirection: flexDirection}} accessible={true} accessibilityLabel={`${chartTitle}. ${generatedLabel}`} accessibilityRole={"image"}>
-          <View>
-            <Svg
-              width={dynamicRadius * 2}
-              height={dynamicRadius * 2}
-              viewBox={`${-padding} ${-padding}  ${dynamicRadius * 2 + padding * 2} ${dynamicRadius * 2 + padding * 2}`}
-              aria-hidden={true}
-              >
-              {sectorData.map((obj) => (
-                <Sector
-                startX={dynamicRadius}
-                startY={dynamicRadius}
-                startAngle={obj.startAngle}
-                endAngle={obj.endAngle}
-                radius={dynamicRadius}
-                stroke={stroke}
-                  strokeWidth={obj.strokeWidth}
-                  fill={obj.fill}
-                  label={obj.label}
-                  showLabels={showLabels}
-                  labelFont={labelFont}
-                  labelFontSize={labelFontSize}
-                  labelDistance={labelDistance}
-                  key={obj.key}
-                  />   
-                ))}
+							{lineData.map((line) => (
+								<SectorLine
+									startX={line.startX}
+									startY={line.startY}
+									centerX={dynamicRadius}
+									centerY={dynamicRadius}
+									endX={line.endX}
+									endY={line.endY}
+									radius={line.radius}
+									sectorAngle={line.sectorAngle}
+									sectorStroke={line.sectorStroke}
+									sectorStrokeWidth={safeSectorStrokeWidth}
+									sectorStrokeWidthThreshold={sectorStrokeWidthThreshold}
+									key={line.key}
+								/>
+							))}
+						</Svg>
+					</View>
+					{legend && legend(sectorData)}
+				</View>
+			)
+			// Occurs when all but one sector are filtered out by the 2% minimum threshold
+		}
+		if (sectorData.length === 1) {
+			const { fill, group, label } = sectorData[0]
+			const singleSectorData = [{ group: group, fill: fill, label: label }]
+			return (
+				<View
+					style={{
+						alignItems: "center",
+						justifyContent: "center",
+						flexDirection: flexDirection,
+					}}
+				>
+					<SingleSector
+						data={singleSectorData}
+						radius={dynamicRadius}
+						stroke={stroke ?? "black"}
+						padding={padding}
+						strokeWidth={safeStrokeWidth}
+						labelFont={labelFont}
+						labelFontSize={labelFontSize}
+						showLabels={showLabels}
+						title={`${chartTitle}, ${generatedLabel}`}
+					/>
+					{legend && legend(singleSectorData)}
+				</View>
+			)
+		}
+	} else if (validatedData.length === 1) {
+		const { fill, group, value } = validatedData[0]
+		const label = labelType === "percentage" ? "100%" : value.toString()
+		const singleSectorData = [{ group: group, fill: fill, label: label }]
 
-              {lineData.map((line) => (
-              
-                <SectorLine
-                  startX={line.startX}
-                  startY={line.startY}
-                  centerX={dynamicRadius}
-                  centerY={dynamicRadius}
-                  endX={line.endX}
-                  endY={line.endY}
-                  radius={line.radius}
-                  sectorAngle={line.sectorAngle}
-                  sectorStroke={line.sectorStroke}
-                  sectorStrokeWidth={safeSectorStrokeWidth}
-                  sectorStrokeWidthThreshold={sectorStrokeWidthThreshold}
-                  key={line.key}
-                  />
-              ))}
-            </Svg>
-          </View>
-          {legend && legend(sectorData)}
-          
-        </View>
-      );
-      // Occurs when all but one sector are filtered out by the 2% minimum threshold
-    } else if (sectorData.length === 1){
-      const { fill, group, label} = sectorData[0]
-      const data = [{group: group, fill: fill, label: label }]
-        return (
-          <View style={{alignItems: "center", justifyContent: "center", flexDirection: flexDirection}}>
-            <SingleSector data={data} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}, ${generatedLabel}`} />
-            {legend && legend(data)}          
-          </View>
-    
-  )
-    }
-} else if (validatedData.length === 1) {
-  const { fill, group, value} = validatedData[0]
-  const label = labelType === "percentage" ? "100%" : value.toString()
-  const data = [{group: group, fill: fill, label: label }]
-
-  return (
-    <View style={{alignItems: "center", justifyContent: "center", flexDirection: flexDirection}}>
-      <SingleSector data={data} radius={dynamicRadius} stroke={stroke ?? "black"} padding={padding} strokeWidth={safeStrokeWidth} labelFont={labelFont} labelFontSize={labelFontSize} showLabels={showLabels} title={`${chartTitle}. ${group}: ${label}` }/>
-      {legend && legend(data)}
-    </View>
-  )
-} else {
-    return (
-      <PieChartPlaceHolder radius={dynamicRadius} padding={padding} strokeWidth={safeStrokeWidth} stroke={stroke} title={emptyTitle} />
-    )
-  }
+		return (
+			<View
+				style={{
+					alignItems: "center",
+					justifyContent: "center",
+					flexDirection: flexDirection,
+				}}
+			>
+				<SingleSector
+					data={singleSectorData}
+					radius={dynamicRadius}
+					stroke={stroke ?? "black"}
+					padding={padding}
+					strokeWidth={safeStrokeWidth}
+					labelFont={labelFont}
+					labelFontSize={labelFontSize}
+					showLabels={showLabels}
+					title={`${chartTitle}. ${group}: ${label}`}
+				/>
+				{legend && legend(singleSectorData)}
+			</View>
+		)
+	} else {
+		return (
+			<PieChartPlaceHolder
+				radius={dynamicRadius}
+				padding={padding}
+				strokeWidth={safeStrokeWidth}
+				stroke={stroke}
+				title={emptyTitle}
+			/>
+		)
+	}
 }
 
 /**

@@ -1,33 +1,33 @@
-import { Path, Text } from "react-native-svg";
-import computeSector from "../utils/PieChart/computeSector";
+import { Path, Text } from "react-native-svg"
+import computeSector from "../utils/PieChart/computeSector"
 
 type SectorProps = {
-  /** Drawing startpoint x */
-  startX: number;
-  /** Drawing startpoint y */
-  startY: number;
-  /**0-360 */
-  startAngle: number;
-  /**0-360 */
-  endAngle: number;
-  /**Sector size */
-  radius: number;
-  /**Stroke color (optional)*/
-  stroke?: string;
-  /**Strokewidth of Sector (optional) */
-  strokeWidth?: number;
-  /**Color fill */
-  fill?: string;
-  showLabels: boolean;
-  /**Displayed label */
-  label?: number | string;
-  /**Font used for labels (optional) */
-  labelFont?: string;
-  /**Label font size (optional) */
-  labelFontSize?: number;
-  /**Distance between circle midpoint and label (optional)*/
-  labelDistance?: number;
-};
+	/** Drawing startpoint x */
+	startX: number
+	/** Drawing startpoint y */
+	startY: number
+	/**0-360 */
+	startAngle: number
+	/**0-360 */
+	endAngle: number
+	/**Sector size */
+	radius: number
+	/**Stroke color (optional)*/
+	stroke?: string
+	/**Strokewidth of Sector (optional) */
+	strokeWidth?: number
+	/**Color fill */
+	fill?: string
+	showLabels: boolean
+	/**Displayed label */
+	label?: number | string
+	/**Font used for labels (optional) */
+	labelFont?: string
+	/**Label font size (optional) */
+	labelFontSize?: number
+	/**Distance between circle midpoint and label (optional)*/
+	labelDistance?: number
+}
 
 /**
  * Sector component
@@ -49,7 +49,7 @@ type SectorProps = {
  * @param props.labelDistance - Optional distance multiplier for label placement
  *
  * @returns JSX.Element
- * 
+ *
  * Renders:
  * 1. <Path /> - The actual SVG arc for the sector
  *    - Uses startX/startY as the center
@@ -63,49 +63,59 @@ type SectorProps = {
  */
 
 const Sector = ({
-  startX,
-  startY,
-  startAngle,
-  endAngle,
-  radius,
-  stroke,
-  strokeWidth,
-  fill,
-  label,
-  showLabels,
-  labelFont,
-  labelFontSize,
-  labelDistance,
+	startX,
+	startY,
+	startAngle,
+	endAngle,
+	radius,
+	stroke,
+	strokeWidth,
+	fill,
+	label,
+	showLabels,
+	labelFont,
+	labelFontSize,
+	labelDistance,
 }: SectorProps) => {
-  const {
-    lineX,
-    lineY,
-    largeArcFlag,
-    arcEndX,
-    arcEndY,
-    labelX,
-    labelY,
-    fontSize,
-  } = computeSector(startAngle, endAngle, radius, labelFontSize, labelDistance);
-  const isFullCircle = Math.abs(endAngle - startAngle) >= 359.9
-  return (
-  
-      <>
-        <Path
-          d={isFullCircle ? `M${startX} ${startY} m${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z ` : `M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z ` }
-          stroke={stroke ? stroke : "black"}
-          strokeWidth={strokeWidth ?? 0}
-          fill={fill ? fill : "none"}
-          accessible={false}      
-          />
-        {showLabels && (
-          <Text x={labelX} y={labelY} textAnchor="middle" fontFamily={labelFont} fontSize={fontSize} aria-hidden={true} accessible={false} >
-            {label}
-          </Text>
-        )}
-      </>
-
-  );
+	const {
+		lineX,
+		lineY,
+		largeArcFlag,
+		arcEndX,
+		arcEndY,
+		labelX,
+		labelY,
+		fontSize,
+	} = computeSector(startAngle, endAngle, radius, labelFontSize, labelDistance)
+	const isFullCircle = Math.abs(endAngle - startAngle) >= 359.9
+	return (
+		<>
+			<Path
+				d={
+					isFullCircle
+						? `M${startX} ${startY} m${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z `
+						: `M${startX} ${startY} l${lineX} ${-lineY} a${radius} ${radius} 0 ${largeArcFlag} 0 ${arcEndX} ${-arcEndY} Z `
+				}
+				stroke={stroke ? stroke : "black"}
+				strokeWidth={strokeWidth ?? 0}
+				fill={fill ? fill : "none"}
+				accessible={false}
+			/>
+			{showLabels && (
+				<Text
+					x={labelX}
+					y={labelY}
+					textAnchor="middle"
+					fontFamily={labelFont}
+					fontSize={fontSize}
+					aria-hidden={true}
+					accessible={false}
+				>
+					{label}
+				</Text>
+			)}
+		</>
+	)
 }
 
 export default Sector

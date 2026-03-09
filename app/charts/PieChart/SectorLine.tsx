@@ -1,27 +1,27 @@
-import { Path } from "react-native-svg";
+import { Path } from "react-native-svg"
 
 type SectorLineProps = {
-  /** Drawing startpoint x */
-  startX: number;
-  /** Drawing startpoint y */
-  startY: number;
-  /**Line endpoint x */
-  centerX: number;
-  /**Line endpoint y */
-  centerY: number;
-  endY: number;
-  endX: number;
-  /**PieChart radius for strokeWdth calc */
-  radius: number;
-  /**Difference between the startangle and endangle of the sector */
-  sectorAngle: number;
-  /**Color of sector radius lines (optional) */
-  sectorStroke?: string;
-  /**Strokewidth of sector radius lines (optional) */
-  sectorStrokeWidth?: number;
-  /**Threshold that defines at which angle the strokewidht is increased (optional) */
-  sectorStrokeWidthThreshold?: number;
-};
+	/** Drawing startpoint x */
+	startX: number
+	/** Drawing startpoint y */
+	startY: number
+	/**Line endpoint x */
+	centerX: number
+	/**Line endpoint y */
+	centerY: number
+	endY: number
+	endX: number
+	/**PieChart radius for strokeWdth calc */
+	radius: number
+	/**Difference between the startangle and endangle of the sector */
+	sectorAngle: number
+	/**Color of sector radius lines (optional) */
+	sectorStroke?: string
+	/**Strokewidth of sector radius lines (optional) */
+	sectorStrokeWidth?: number
+	/**Threshold that defines at which angle the strokewidht is increased (optional) */
+	sectorStrokeWidthThreshold?: number
+}
 
 /**
  * SectorLine component
@@ -56,29 +56,29 @@ type SectorLineProps = {
  */
 
 const SectorLine = ({
-  startX,
-  startY,
-  centerX,
-  centerY,
-  endX,
-  endY,
-  radius,
-  sectorAngle,
-  sectorStroke,
-  sectorStrokeWidth,
-  sectorStrokeWidthThreshold,
-}: SectorLineProps)  => {
-  return (
-    sectorAngle >= (sectorStrokeWidthThreshold || 361) && (
-      <Path
-        d={`M${startX} ${startY} L${centerX} ${centerY} l ${endX} ${endY} `}
-        stroke={sectorStroke ? sectorStroke : "black"}
-        strokeWidth={sectorStrokeWidth ??  radius * 0.0375}
-        fill={"none"}
-        accessible={false}
-      />
-    )
-  );
+	startX,
+	startY,
+	centerX,
+	centerY,
+	endX,
+	endY,
+	radius,
+	sectorAngle,
+	sectorStroke,
+	sectorStrokeWidth,
+	sectorStrokeWidthThreshold,
+}: SectorLineProps) => {
+	return (
+		sectorAngle >= (sectorStrokeWidthThreshold || 361) && (
+			<Path
+				d={`M${startX} ${startY} L${centerX} ${centerY} l ${endX} ${endY} `}
+				stroke={sectorStroke ? sectorStroke : "black"}
+				strokeWidth={sectorStrokeWidth ?? radius * 0.0375}
+				fill={"none"}
+				accessible={false}
+			/>
+		)
+	)
 }
 
 export default SectorLine
