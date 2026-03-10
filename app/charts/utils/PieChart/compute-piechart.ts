@@ -10,6 +10,7 @@ type SectorDataProps = {
 	strokeWidth: number
 	key: number
 	group?: string
+	accLabel?: string
 }
 
 type LineDataProps = {
@@ -67,6 +68,7 @@ export const computePieChart = (
 		const endAngle = calculateEndAngle(startAngle, obj.value, totalChartValue)
 		const sectorAngle = endAngle - startAngle
 		let label = setLabel(obj.value, labelType, sectorAngle)
+		const accLabel = label
 		if (labelFontSize && sectorAngle < estLabelWidth(labelFontSize, label)) {
 			label = ""
 		}
@@ -96,6 +98,7 @@ export const computePieChart = (
 				fill,
 				key,
 				group,
+				accLabel,
 			}
 			const line = {
 				radius,

@@ -83,7 +83,7 @@ const PieChart = ({
 			sectorStroke,
 		)
 		const generatedLabel = sectorData
-			.map((obj) => `${obj.group}: ${obj.label}`)
+			.map((obj) => `${obj.group}: ${obj.accLabel}`)
 			.join(", ")
 		if (sectorData.length > 1) {
 			return (
