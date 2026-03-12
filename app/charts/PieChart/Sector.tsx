@@ -80,6 +80,7 @@ const Sector = ({
 				strokeWidth={strokeWidth ?? 0}
 				fill={fill ?? "none"}
 				accessible={false}
+				aria-hidden={true}
 			/>
 			{showLabels && (
 				<Text
