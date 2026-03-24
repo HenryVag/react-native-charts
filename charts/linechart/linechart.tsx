@@ -1,13 +1,26 @@
 import { useState } from "react"
 import { Text, View } from "react-native"
-import Svg, { Circle, Line } from "react-native-svg"
+import Svg, {
+	Circle,
+	G,
+	Line,
+	Polyline,
+	Text as SVGText,
+} from "react-native-svg"
+import { computeDataPoints } from "../utils/linechart/compute-datapoints"
+import {
+	calculateGridValues,
+	computeGrid,
+} from "../utils/linechart/compute-grid"
+import { calculateTicks } from "../utils/linechart/compute-linechart"
 
 type LineChartProps = {
 	data: { x: number; y: number }[]
+	tickCountTarget?: number // 2- 20,
 	//TODO: ADD Date as accepted x type
 }
 
-const LineChart = ({ data }: LineChartProps) => {
+const LineChart = ({ data, tickCountTarget }: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
 	// X and Y axis lines (optional)
 	// Display X and Y axis values (optional)
@@ -19,155 +32,160 @@ const LineChart = ({ data }: LineChartProps) => {
 	//Component height and width are determined by the parent container
 	//The component fills the container
 	//Size is determined by parent container flex and width values.
-
+	const safeTickCountTarget = Math.min(Math.max(tickCountTarget ?? 3, 2), 20)
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
-	const chartAxisValues = calculateAxisValues(data)
+	const chartAxisValues = calculateGridValues(data)
 
 	const xAxisVal = calculateTicks(
-		data.length,
+		safeTickCountTarget,
 		chartAxisValues.minX,
 		chartAxisValues.maxX,
 	)
-
 	const yAxisVal = calculateTicks(
-		data.length,
+		safeTickCountTarget,
 		chartAxisValues.minY,
 		chartAxisValues.maxY,
 	)
 
-	const xLineData = computeAxisLines(xAxisVal, "x")
-	const yLineData = computeAxisLines(yAxisVal, "y")
+	const paddingX = dimensions.width * 0.1
+	const paddingY = dimensions.height * 0.1
 
-	console.log(xLineData)
+	const chartWidth = dimensions.width - paddingX * 2
+	const chartHeight = dimensions.height - paddingY * 2
+	const { xLineData, yLineData } = computeGrid(
+		xAxisVal,
+		yAxisVal,
+		paddingX,
+		paddingY,
+		chartHeight,
+		chartWidth,
+	)
+
+	const dataPoints = computeDataPoints(
+		data,
+		paddingX,
+		paddingY,
+		chartWidth,
+		chartHeight,
+		xAxisVal,
+		yAxisVal,
+	)
+
+	let polyLineStr = ""
+	dataPoints.forEach((point, i) => {
+		const x = point.cx
+		const y = point.cy
+		polyLineStr = polyLineStr + `${x},${y} `
+	})
 
 	return (
 		<View
 			style={{ flex: 1 }}
 			onLayout={(e) => setDimensions(e.nativeEvent.layout)}
 		>
-			<Text>{xAxisVal.niceMin}</Text>
-			<Text>{xAxisVal.niceMax}</Text>
-			<Svg width={dimensions.width} height={dimensions.height}>
-				<Line x1="0%" y1="100%" x2={0} y2="100%" stroke="green" />
-				<Line x1="0%" y1="0%" x2="0%" y2="100%" stroke="green" />
+			<Svg
+				width={dimensions.width}
+				height={dimensions.height}
+				style={{ flex: 1 }}
+			>
 				{yLineData.map((line, i) => (
-					<Line
-						x1={line.x1}
-						y1={line.y1}
-						x2={line.x2}
-						y2={line.y2}
-						stroke="green"
-						key={line.y1}
-					/>
+					<G>
+						<Line
+							x1={line.x1}
+							y1={line.y1}
+							x2={line.x2}
+							y2={line.y2}
+							stroke="green"
+							strokeWidth={1}
+							key={line.y1}
+						/>
+						<SVGText x={line.x1 - 15} y={line.y2} textAnchor={"middle"}>
+							{line.val}
+						</SVGText>
+					</G>
 				))}
 				{xLineData.map((line, i) => (
-					<Line
-						x1={line.x1}
-						y1={line.y1}
-						x2={line.x2}
-						y2={line.y2}
-						stroke="green"
-						key={line.x1}
-					/>
+					<G>
+						<Line
+							x1={line.x1}
+							y1={line.y1}
+							x2={line.x2}
+							y2={line.y2}
+							stroke="purple"
+							strokeWidth={1}
+							key={line.x1}
+						/>
+						<SVGText
+							x={line.x1}
+							y={line.y2 + chartHeight + 15}
+							textAnchor={"middle"}
+						>
+							{line.val}
+						</SVGText>
+					</G>
 				))}
+				<Line
+					x1={paddingX}
+					y1={paddingY + chartHeight}
+					x2={paddingX + chartWidth}
+					y2={paddingY + chartHeight}
+					stroke="red"
+				/>
+				<SVGText
+					x={paddingX - 15}
+					y={paddingY + chartHeight}
+					textAnchor={"middle"}
+				>
+					{yAxisVal.niceMin}
+				</SVGText>
+				<Line
+					x1={paddingX}
+					y1={paddingY}
+					x2={paddingX + chartWidth}
+					y2={paddingY}
+					stroke="red"
+				/>
+				<SVGText x={paddingX - 15} y={paddingY} textAnchor={"middle"}>
+					{yAxisVal.niceMax}
+				</SVGText>
+
+				<Line
+					x1={paddingX}
+					y1={paddingY}
+					x2={paddingX}
+					y2={paddingY + chartHeight}
+					stroke="blue"
+				/>
+				<SVGText
+					x={paddingX}
+					y={paddingY + chartHeight + 15}
+					textAnchor={"middle"}
+				>
+					{xAxisVal.niceMin}
+				</SVGText>
+				<Line
+					x1={paddingX + chartWidth}
+					y1={paddingY}
+					x2={paddingX + chartWidth}
+					y2={paddingY + chartHeight}
+					stroke="blue"
+				/>
+				<SVGText
+					x={paddingX + chartWidth}
+					y={paddingY + chartHeight + 15}
+					textAnchor={"middle"}
+				>
+					{xAxisVal.niceMax}
+				</SVGText>
+
+				{dataPoints.map((point, i) => (
+					<Circle cx={point.cx} cy={point.cy} key={i} r={2} />
+				))}
+				<Polyline points={polyLineStr} fill="none" stroke="black" />
 			</Svg>
 		</View>
 	)
 }
 
 export default LineChart
-
-const calculateAxisValues = (data: { x: number; y: number }[]) => {
-	const xValues = data.map((obj) => {
-		return obj.x
-	})
-	const yValues = data.map((obj) => {
-		return obj.y
-	})
-
-	return {
-		maxX: Math.max(...xValues),
-		minX: Math.min(...xValues),
-		maxY: Math.max(...yValues),
-		minY: Math.min(...yValues),
-	}
-}
-
-/**
- * Calculate and update values for tick spacing and nice
- * minimum and maximum data points on the axis.
- */
-const calculateTicks = (
-	maxTicks: number,
-	minPoint: number,
-	maxPoint: number,
-): { tickCount: number; niceMin: number; niceMax: number } => {
-	const range = niceNum(maxPoint - minPoint, false)
-	const tickSpacing = niceNum(range / (maxTicks - 1), true)
-	const niceMin = Math.floor(minPoint / tickSpacing) * tickSpacing
-	const niceMax = Math.ceil(maxPoint / tickSpacing) * tickSpacing
-	const tickCount = range / tickSpacing
-	return { tickCount, niceMin, niceMax }
-}
-
-/**
- * Returns a "nice" number approximately equal to range. Rounds
- * the number if round = true Takes the ceiling if round = false.
- *
- * @param range the data range
- * @param round whether to round the result
- * @return a "nice" number to be used for the data range
- */
-const niceNum = (range: number, round: boolean): number => {
-	let exponent: number
-	/** exponent of range */
-	let fraction: number
-	/** fractional part of range */
-	let niceFraction: number
-	/** nice, rounded fraction */
-
-	exponent = Math.floor(Math.log10(range))
-	fraction = range / Math.pow(10, exponent)
-
-	if (round) {
-		if (fraction < 1.5) niceFraction = 1
-		else if (fraction < 3) niceFraction = 2
-		else if (fraction < 7) niceFraction = 5
-		else niceFraction = 10
-	} else {
-		if (fraction <= 1) niceFraction = 1
-		else if (fraction <= 2) niceFraction = 2
-		else if (fraction <= 5) niceFraction = 5
-		else niceFraction = 10
-	}
-
-	return niceFraction * Math.pow(10, exponent)
-}
-
-const computeAxisLines = (axisValues, axis) => {
-	const lineData = []
-	const tickCount = axisValues.tickCount
-	let i = 1
-	if (axis === "x") {
-		while (i <= tickCount + 1) {
-			const x1 = `${(100 / tickCount) * i}%`
-			const x2 = `${(100 / tickCount) * i}%`
-			const y1 = "0%"
-			const y2 = "100%"
-			lineData.push({ x1: x1, x2: x2, y1: y1, y2: y2 })
-			i++
-		}
-	} else if (axis === "y") {
-		while (i <= tickCount + 1) {
-			const x1 = "0%"
-			const x2 = "100%"
-			const y1 = `${(100 / tickCount) * i}%`
-			const y2 = `${(100 / tickCount) * i}%`
-			lineData.push({ x1: x1, x2: x2, y1: y1, y2: y2 })
-			i++
-		}
-	}
-
-	return lineData
-}
