@@ -32,14 +32,31 @@ export const niceNum = (range: number, round: boolean): number => {
 	return niceFraction * Math.pow(10, exponent)
 }
 
+export const niceMinDate = (date: number) => {
+	const dt = new Date(date)
+	const day = dt.getDate()
+	const newDate = date - (day - 1) * 86400000
+	return newDate
+}
+
+export const niceMaxDate = (date: number) => {
+	const dt = new Date(date)
+	const day = dt.getDate()
+	const mth = 1 + dt.getMonth()
+	let newDate = dt.setMonth(5)
+	newDate = date - (day - 1) * 86400000
+	return newDate
+}
+
 export const toSvgX = (
-	x: number,
+	x: number | Date,
 	niceMin: number,
 	niceMax: number,
 	chartWidth: number,
 	padding: number,
 ) => {
-	const posX = ((x - niceMin) / (niceMax - niceMin)) * chartWidth + padding
+	const posX =
+		((x.valueOf() - niceMin) / (niceMax - niceMin)) * chartWidth + padding
 	return posX
 }
 
