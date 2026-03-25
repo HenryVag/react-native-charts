@@ -41,11 +41,41 @@ export const niceMinDate = (date: number) => {
 
 export const niceMaxDate = (date: number) => {
 	const dt = new Date(date)
-	const day = dt.getDate()
-	const mth = 1 + dt.getMonth()
-	let newDate = dt.setMonth(5)
-	newDate = date - (day - 1) * 86400000
+	const newDate = new Date(dt.getFullYear(), dt.getMonth() + 1, 1)
 	return newDate
+}
+
+export const msToDate = (
+	ms: number,
+	t: "day" | "week" | "month" | "year" | "month-num",
+) => {
+	const months = [
+		"Tammikuu",
+		"Helmikuu",
+		"Maaliskuu",
+		"Huhtikuu",
+		"Toukokuu",
+		"Kesäkuu",
+		"Heinäkuu",
+		"Elokuu",
+		"Syyskuu",
+		"Lokakuu",
+		"Marraskuu",
+		"Joulukuu",
+	]
+	const dt = new Date(ms)
+	switch (t) {
+		case "day":
+			return `${dt.getDate()}`
+		case "week":
+			return `${getDateWeek(ms)}`
+		case "month":
+			return `${months[dt.getMonth()]}`
+		case "month-num":
+			return `${dt.getMonth() + 1}`
+		case "year":
+			return `${dt.getFullYear()}`
+	}
 }
 
 export const toSvgX = (
@@ -70,4 +100,27 @@ export const toSvgY = (
 	const posY =
 		((y - niceMin) / -(niceMax - niceMin)) * chartHeight + padding + chartHeight
 	return posY
+}
+
+function getDateWeek(ms: number) {
+	const date = new Date(ms)
+	const currentDate = typeof date === "object" ? date : new Date()
+	const januaryFirst = new Date(currentDate.getFullYear(), 0, 1)
+	const daysToNextMonday =
+		januaryFirst.getDay() === 1 ? 0 : (7 - januaryFirst.getDay()) % 7
+	const nextMonday = new Date(
+		currentDate.getFullYear(),
+		0,
+		januaryFirst.getDate() + daysToNextMonday,
+	)
+
+	return currentDate < nextMonday
+		? 52
+		: currentDate > nextMonday
+			? Math.ceil(
+					(currentDate.getTime() - nextMonday.getTime()) /
+						(24 * 3600 * 1000) /
+						7,
+				)
+			: 1
 }
