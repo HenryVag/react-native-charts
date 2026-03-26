@@ -14,13 +14,15 @@ import {
 } from "../utils/linechart/compute-grid"
 import { calculateTicks } from "../utils/linechart/compute-linechart"
 import { msToDate } from "../utils/linechart/helpers"
+import { ChartAxes } from "./chart-axes"
 import { ChartGrid } from "./chart-grid"
 
 export type LabelData = Record<string, string>
-
 type LineChartProps = {
 	data: { x: number | Date; y: number }[]
-	tickCountTarget?: number // 2- 20,
+	xTickCountTarget?: number // 2- 20,
+	yTickCountTarget?: number // 2- 20,
+	dateTickInterval?: "day" | "week" | "month" | "year"
 	labelInterval?: number
 	labelProp?: (
 		label: LabelData,
@@ -30,10 +32,17 @@ type LineChartProps = {
 	) => React.ReactNode
 }
 
+/**
+ *
+ * @param TickCountTarget Number of ticks the chart tries to generate on the axis (does not work with dates)
+ *
+ */
 const LineChart = ({
 	data,
-	tickCountTarget,
+	xTickCountTarget,
+	yTickCountTarget,
 	labelInterval,
+	dateTickInterval,
 	labelProp,
 }: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
@@ -47,22 +56,24 @@ const LineChart = ({
 	//Component height and width are determined by the parent container
 	//The component fills the container
 	//Size is determined by parent container flex and width values.
-	const safeTickCountTarget = Math.min(Math.max(tickCountTarget ?? 3, 2), 20)
-	const safeLabelInterval =
-		labelInterval && labelInterval > 0 ? labelInterval : 1
-	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-
+	const safeTickCountTargetX = Math.min(Math.max(xTickCountTarget ?? 3, 2), 20)
+	const safeTickCountTargetY = Math.min(Math.max(yTickCountTarget ?? 3, 2), 20)
 	const chartAxisValues = calculateGridValues(data)
 
+	const safeLabelInterval =
+		labelInterval && labelInterval > 0 ? labelInterval : 1
+	const safeDateTickInterval = dateTickInterval ?? "week"
+	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+
 	const xAxisVal = calculateTicks(
-		safeTickCountTarget,
+		safeTickCountTargetX,
 		chartAxisValues.minX,
 		chartAxisValues.maxX,
-		true,
-		"week",
+		chartAxisValues.isDate,
+		safeDateTickInterval,
 	)
 	const yAxisVal = calculateTicks(
-		safeTickCountTarget,
+		safeTickCountTargetY,
 		chartAxisValues.minY,
 		chartAxisValues.maxY,
 		false,
@@ -119,62 +130,14 @@ const LineChart = ({
 					labelFontSize={labelFontSize}
 					labelComponent={labelProp}
 				/>
-				<Line
-					x1={paddingX}
-					y1={paddingY + chartHeight}
-					x2={paddingX + chartWidth}
-					y2={paddingY + chartHeight}
-					stroke="red"
+				<ChartAxes
+					paddingX={paddingX}
+					paddingY={paddingY}
+					chartHeight={chartHeight}
+					chartWidth={chartWidth}
+					xAxisVal={xAxisVal}
+					yAxisVal={yAxisVal}
 				/>
-				<SVGText
-					x={paddingX - 15}
-					y={paddingY + chartHeight}
-					textAnchor={"middle"}
-				>
-					{yAxisVal.niceMin}
-				</SVGText>
-				<Line
-					x1={paddingX}
-					y1={paddingY}
-					x2={paddingX + chartWidth}
-					y2={paddingY}
-					stroke="red"
-				/>
-				<SVGText x={paddingX - 15} y={paddingY} textAnchor={"middle"}>
-					{yAxisVal.niceMax}
-				</SVGText>
-
-				<Line
-					x1={paddingX}
-					y1={paddingY}
-					x2={paddingX}
-					y2={paddingY + chartHeight}
-					stroke="blue"
-				/>
-				<SVGText
-					x={paddingX}
-					y={paddingY + chartHeight + 15}
-					textAnchor={"middle"}
-					fontSize={10}
-				>
-					{msToDate(xAxisVal.niceMin, "day")}
-				</SVGText>
-				<Line
-					x1={paddingX + chartWidth}
-					y1={paddingY}
-					x2={paddingX + chartWidth}
-					y2={paddingY + chartHeight}
-					stroke="blue"
-				/>
-				<SVGText
-					x={paddingX + chartWidth}
-					y={paddingY + chartHeight + 15}
-					textAnchor={"middle"}
-					fontSize={10}
-					transform={`rotate(0,${paddingX + chartWidth}, ${paddingY + chartHeight + 15})`}
-				>
-					{msToDate(xAxisVal.niceMax, "day")}
-				</SVGText>
 
 				{dataPoints.map((point, i) => (
 					<Circle cx={point.cx} cy={point.cy} key={i} r={2} />
