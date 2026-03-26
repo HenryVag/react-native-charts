@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { Text, View } from "react-native"
 import Svg, {
 	Circle,
@@ -13,14 +13,29 @@ import {
 	computeGrid,
 } from "../utils/linechart/compute-grid"
 import { calculateTicks } from "../utils/linechart/compute-linechart"
+import { msToDate } from "../utils/linechart/helpers"
+import { ChartGrid } from "./chart-grid"
+
+export type LabelData = Record<string, string>
 
 type LineChartProps = {
-	data: { x: number; y: number }[]
+	data: { x: number | Date; y: number }[]
 	tickCountTarget?: number // 2- 20,
-	//TODO: ADD Date as accepted x type
+	labelInterval?: number
+	labelProp?: (
+		label: LabelData,
+		x: number,
+		y: number,
+		fontSize: number,
+	) => React.ReactNode
 }
 
-const LineChart = ({ data, tickCountTarget }: LineChartProps) => {
+const LineChart = ({
+	data,
+	tickCountTarget,
+	labelInterval,
+	labelProp,
+}: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
 	// X and Y axis lines (optional)
 	// Display X and Y axis values (optional)
@@ -33,6 +48,8 @@ const LineChart = ({ data, tickCountTarget }: LineChartProps) => {
 	//The component fills the container
 	//Size is determined by parent container flex and width values.
 	const safeTickCountTarget = Math.min(Math.max(tickCountTarget ?? 3, 2), 20)
+	const safeLabelInterval =
+		labelInterval && labelInterval > 0 ? labelInterval : 1
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
 	const chartAxisValues = calculateGridValues(data)
@@ -41,18 +58,23 @@ const LineChart = ({ data, tickCountTarget }: LineChartProps) => {
 		safeTickCountTarget,
 		chartAxisValues.minX,
 		chartAxisValues.maxX,
+		true,
+		"week",
 	)
 	const yAxisVal = calculateTicks(
 		safeTickCountTarget,
 		chartAxisValues.minY,
 		chartAxisValues.maxY,
+		false,
 	)
 
-	const paddingX = dimensions.width * 0.1
-	const paddingY = dimensions.height * 0.1
+	const labelFontSize = (10 / 225) * dimensions.height
+	const paddingX = (dimensions.width * 0.1 + labelFontSize) * 1.1
+	const paddingY = (dimensions.height * 0.1 + labelFontSize) * 1.5
 
 	const chartWidth = dimensions.width - paddingX * 2
 	const chartHeight = dimensions.height - paddingY * 2
+
 	const { xLineData, yLineData } = computeGrid(
 		xAxisVal,
 		yAxisVal,
@@ -60,6 +82,7 @@ const LineChart = ({ data, tickCountTarget }: LineChartProps) => {
 		paddingY,
 		chartHeight,
 		chartWidth,
+		safeLabelInterval,
 	)
 
 	const dataPoints = computeDataPoints(
@@ -89,42 +112,13 @@ const LineChart = ({ data, tickCountTarget }: LineChartProps) => {
 				height={dimensions.height}
 				style={{ flex: 1 }}
 			>
-				{yLineData.map((line, i) => (
-					<G>
-						<Line
-							x1={line.x1}
-							y1={line.y1}
-							x2={line.x2}
-							y2={line.y2}
-							stroke="green"
-							strokeWidth={1}
-							key={line.y1}
-						/>
-						<SVGText x={line.x1 - 15} y={line.y2} textAnchor={"middle"}>
-							{line.val}
-						</SVGText>
-					</G>
-				))}
-				{xLineData.map((line, i) => (
-					<G>
-						<Line
-							x1={line.x1}
-							y1={line.y1}
-							x2={line.x2}
-							y2={line.y2}
-							stroke="purple"
-							strokeWidth={1}
-							key={line.x1}
-						/>
-						<SVGText
-							x={line.x1}
-							y={line.y2 + chartHeight + 15}
-							textAnchor={"middle"}
-						>
-							{line.val}
-						</SVGText>
-					</G>
-				))}
+				<ChartGrid
+					xLineData={xLineData}
+					yLineData={yLineData}
+					isDate={chartAxisValues.isDate}
+					labelFontSize={labelFontSize}
+					labelComponent={labelProp}
+				/>
 				<Line
 					x1={paddingX}
 					y1={paddingY + chartHeight}
@@ -161,8 +155,9 @@ const LineChart = ({ data, tickCountTarget }: LineChartProps) => {
 					x={paddingX}
 					y={paddingY + chartHeight + 15}
 					textAnchor={"middle"}
+					fontSize={10}
 				>
-					{xAxisVal.niceMin}
+					{msToDate(xAxisVal.niceMin, "day")}
 				</SVGText>
 				<Line
 					x1={paddingX + chartWidth}
@@ -175,8 +170,10 @@ const LineChart = ({ data, tickCountTarget }: LineChartProps) => {
 					x={paddingX + chartWidth}
 					y={paddingY + chartHeight + 15}
 					textAnchor={"middle"}
+					fontSize={10}
+					transform={`rotate(0,${paddingX + chartWidth}, ${paddingY + chartHeight + 15})`}
 				>
-					{xAxisVal.niceMax}
+					{msToDate(xAxisVal.niceMax, "day")}
 				</SVGText>
 
 				{dataPoints.map((point, i) => (
