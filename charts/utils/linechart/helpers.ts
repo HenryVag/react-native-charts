@@ -1,3 +1,5 @@
+import { LabelData } from "@/charts/linechart/linechart"
+
 /**
  * Returns a "nice" number approximately equal to range. Rounds
  * the number if round = true Takes the ceiling if round = false.
@@ -31,7 +33,7 @@ export const niceNum = (range: number, round: boolean): number => {
 
 	return niceFraction * Math.pow(10, exponent)
 }
-
+//Returns
 export const niceMinDate = (date: number) => {
 	const dt = new Date(date)
 	const day = dt.getDate()
@@ -39,9 +41,10 @@ export const niceMinDate = (date: number) => {
 	return newDate
 }
 
+//Returns the first day of the next month in ms
 export const niceMaxDate = (date: number) => {
 	const dt = new Date(date)
-	const newDate = new Date(dt.getFullYear(), dt.getMonth() + 1, 1)
+	const newDate = new Date(dt.getFullYear(), dt.getMonth() + 1, 1).valueOf()
 	return newDate
 }
 
@@ -71,8 +74,14 @@ export const msToDate = (
 			return `${getDateWeek(ms)}`
 		case "month":
 			return `${months[dt.getMonth()]}`
-		case "month-num":
-			return `${dt.getMonth() + 1}`
+		case "month-num": {
+			const res = dt.getMonth() + 1
+			if (res < 10) {
+				return `0${res}`
+			}
+
+			return `${res}`
+		}
 		case "year":
 			return `${dt.getFullYear()}`
 	}
@@ -123,4 +132,19 @@ function getDateWeek(ms: number) {
 						7,
 				)
 			: 1
+}
+
+export const getLabelData = (val: number, isDate: boolean): LabelData => {
+	if (isDate) {
+		return {
+			day: msToDate(val, "day"),
+			week: msToDate(val, "week"),
+			monthNum: msToDate(val, "month-num"),
+			month: msToDate(val, "month"),
+			year: msToDate(val, "year"),
+		}
+	}
+	return {
+		value: String(val),
+	}
 }
