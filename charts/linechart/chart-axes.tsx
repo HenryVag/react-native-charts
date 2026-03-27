@@ -1,5 +1,5 @@
 import { G, Line, Text as SVGText } from "react-native-svg"
-import { msToDate } from "../utils/linechart/helpers"
+import { msToDate, niceMaxDate } from "../utils/linechart/helpers"
 
 type ChartAxesProps = {
 	paddingX: number
@@ -16,6 +16,9 @@ type ChartAxesProps = {
 		niceMin: number
 		niceMax: number
 	}
+	fontSize: number
+	isDate: boolean
+	yLabelPos: "left" | "right"
 }
 
 export const ChartAxes = ({
@@ -23,8 +26,11 @@ export const ChartAxes = ({
 	paddingY,
 	chartHeight,
 	chartWidth,
-	xAxisVal,
-	yAxisVal,
+	xAxisData,
+	yAxisData,
+	fontSize,
+	isDate,
+	yLabelPos,
 }: ChartAxesProps) => {
 	return (
 		<G>
@@ -33,23 +39,29 @@ export const ChartAxes = ({
 				y1={paddingY + chartHeight}
 				x2={paddingX + chartWidth}
 				y2={paddingY + chartHeight}
-				stroke="red"
+				stroke="#1F3B6680"
 			/>
 			<SVGText
-				x={paddingX - 15}
+				x={paddingX - fontSize * yAxisVal.niceMin.toString().length}
 				y={paddingY + chartHeight}
-				textAnchor={"middle"}
+				fontSize={fontSize}
+				textAnchor={"end"}
 			>
-				{yAxisVal.niceMin}
+				{1}
 			</SVGText>
 			<Line
 				x1={paddingX}
 				y1={paddingY}
 				x2={paddingX + chartWidth}
 				y2={paddingY}
-				stroke="red"
+				stroke="#1F3B6680"
 			/>
-			<SVGText x={paddingX - 15} y={paddingY} textAnchor={"middle"}>
+			<SVGText
+				x={paddingX - 15}
+				y={paddingY}
+				textAnchor={"middle"}
+				fontSize={fontSize}
+			>
 				{yAxisVal.niceMax}
 			</SVGText>
 
@@ -58,13 +70,13 @@ export const ChartAxes = ({
 				y1={paddingY}
 				x2={paddingX}
 				y2={paddingY + chartHeight}
-				stroke="blue"
+				stroke="none"
 			/>
 			<SVGText
 				x={paddingX}
 				y={paddingY + chartHeight + 15}
 				textAnchor={"middle"}
-				fontSize={10}
+				fontSize={fontSize}
 			>
 				{msToDate(xAxisVal.niceMin, "day")}
 			</SVGText>
@@ -73,16 +85,16 @@ export const ChartAxes = ({
 				y1={paddingY}
 				x2={paddingX + chartWidth}
 				y2={paddingY + chartHeight}
-				stroke="blue"
+				stroke="none"
 			/>
 			<SVGText
 				x={paddingX + chartWidth}
 				y={paddingY + chartHeight + 15}
 				textAnchor={"middle"}
-				fontSize={10}
+				fontSize={fontSize}
 				transform={`rotate(0,${paddingX + chartWidth}, ${paddingY + chartHeight + 15})`}
 			>
-				{msToDate(xAxisVal.niceMax, "day")}
+				{isDate ? msToDate(xAxisVal.niceMax, "day") : xAxisVal.niceMax}
 			</SVGText>
 		</G>
 	)
