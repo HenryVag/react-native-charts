@@ -24,6 +24,12 @@ type LineChartProps = {
 	yTickCountTarget?: number // 2- 20,
 	dateTickInterval?: "day" | "week" | "month" | "year"
 	labelInterval?: number
+	gridStroke?: string
+	gridStrokeX?: string
+	gridStrokeY?: string
+	gridStrokeWidth: number
+	gridOpacity?: string | number
+	yLabelPos?: "left" | "right"
 	labelProp?: (
 		label: LabelData,
 		x: number,
@@ -43,6 +49,12 @@ const LineChart = ({
 	yTickCountTarget,
 	labelInterval,
 	dateTickInterval,
+	gridStroke,
+	gridStrokeX,
+	gridStrokeY,
+	gridStrokeWidth,
+	gridOpacity,
+	yLabelPos,
 	labelProp,
 }: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
@@ -59,6 +71,10 @@ const LineChart = ({
 	const safeTickCountTargetX = Math.min(Math.max(xTickCountTarget ?? 3, 2), 20)
 	const safeTickCountTargetY = Math.min(Math.max(yTickCountTarget ?? 3, 2), 20)
 	const chartAxisValues = calculateGridValues(data)
+	const safeGridStroke = gridStroke ?? "black"
+	const safeGridOpacity = gridOpacity ?? "50%"
+	const safeGridStrokeWidth = gridStrokeWidth ?? 10
+	const safeYLabelPos = yLabelPos ?? "left"
 
 	const safeLabelInterval =
 		labelInterval && labelInterval > 0 ? labelInterval : 1
@@ -80,6 +96,8 @@ const LineChart = ({
 	)
 
 	const labelFontSize = (10 / 225) * dimensions.height
+	const scalableGridStrokeWidth =
+		(safeGridStrokeWidth / 1000) * dimensions.height
 	const paddingX = (dimensions.width * 0.1 + labelFontSize) * 1.1
 	const paddingY = (dimensions.height * 0.1 + labelFontSize) * 1.5
 
@@ -94,7 +112,11 @@ const LineChart = ({
 		chartHeight,
 		chartWidth,
 		safeLabelInterval,
+		labelFontSize,
+		safeYLabelPos,
 	)
+
+    const {}
 
 	const dataPoints = computeDataPoints(
 		data,
@@ -129,6 +151,12 @@ const LineChart = ({
 					isDate={chartAxisValues.isDate}
 					labelFontSize={labelFontSize}
 					labelComponent={labelProp}
+					stroke={safeGridStroke}
+					xStroke={gridStrokeX}
+					yStroke={gridStrokeY}
+					strokeWidth={scalableGridStrokeWidth}
+					opacity={safeGridOpacity}
+					yLabelPos={safeYLabelPos}
 				/>
 				<ChartAxes
 					paddingX={paddingX}
@@ -137,6 +165,9 @@ const LineChart = ({
 					chartWidth={chartWidth}
 					xAxisVal={xAxisVal}
 					yAxisVal={yAxisVal}
+					fontSize={labelFontSize}
+					isDate={chartAxisValues.isDate}
+					yLabelPos={safeYLabelPos}
 				/>
 
 				{dataPoints.map((point, i) => (
