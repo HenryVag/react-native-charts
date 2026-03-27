@@ -11,6 +11,8 @@ type ChartGridProps = {
 		y2: number
 		val: number
 		yVal: number
+		labelX: number
+		labelY: number
 		showLabel: boolean
 	}[]
 	yLineData: {
@@ -18,10 +20,19 @@ type ChartGridProps = {
 		x2: number
 		y1: number
 		y2: number
+		labelX: number
+		labelY: number
 		val: number
+		labelAnchor: "start" | "end" | "middle"
 	}[]
 	isDate: boolean
 	labelFontSize: number
+	stroke: string
+	xStroke?: string
+	yStroke?: string
+	strokeWidth: number
+	opacity: string | number
+
 	labelComponent?: (
 		label: LabelData,
 		x: number,
@@ -35,6 +46,11 @@ export const ChartGrid = ({
 	yLineData,
 	isDate,
 	labelFontSize,
+	stroke,
+	xStroke,
+	yStroke,
+	strokeWidth,
+	opacity,
 	labelComponent,
 }: ChartGridProps) => {
 	return (
@@ -46,11 +62,17 @@ export const ChartGrid = ({
 						y1={line.y1}
 						x2={line.x2}
 						y2={line.y2}
-						stroke="green"
-						strokeWidth={1}
+						stroke={yStroke ?? stroke}
+						strokeWidth={strokeWidth}
+						opacity={opacity}
 						key={line.y1}
 					/>
-					<SVGText x={line.x1 - 15} y={line.y2} textAnchor={"middle"}>
+					<SVGText
+						x={line.labelX}
+						y={line.labelY}
+						textAnchor={line.labelAnchor}
+						fontSize={labelFontSize}
+					>
 						{line.val}
 					</SVGText>
 				</G>
@@ -62,8 +84,9 @@ export const ChartGrid = ({
 						y1={line.y1}
 						x2={line.x2}
 						y2={line.y2}
-						stroke="purple"
-						strokeWidth={1}
+						stroke={xStroke ?? stroke}
+						strokeWidth={strokeWidth}
+						opacity={opacity}
 						key={line.x1}
 					/>
 
