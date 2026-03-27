@@ -1,7 +1,7 @@
 import { toSvgX, toSvgY } from "./helpers"
 
 export const computeDataPoints = (
-	data: { x: number; y: number }[],
+	data: { x: number | Date; y: number }[],
 	paddingX: number,
 	paddingY: number,
 	chartWidth: number,
