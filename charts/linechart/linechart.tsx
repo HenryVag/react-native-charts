@@ -129,7 +129,6 @@ const LineChart = ({
 		paddingY,
 		chartHeight,
 		chartWidth,
-		safeLabelInterval,
 		labelFontSize,
 		safeShowXLabel,
 		safeYLabelPos,
