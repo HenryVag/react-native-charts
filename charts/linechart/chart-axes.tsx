@@ -1,101 +1,115 @@
 import { G, Line, Text as SVGText } from "react-native-svg"
-import { msToDate, niceMaxDate } from "../utils/linechart/helpers"
+import { LineChartLabel } from "../utils/default-props"
+import { getLabelData, msToDate, niceMaxDate } from "../utils/linechart/helpers"
+import { LabelData } from "./linechart"
 
 type ChartAxesProps = {
 	paddingX: number
 	paddingY: number
 	chartHeight: number
 	chartWidth: number
-	xAxisVal: {
-		tickCount: number
-		niceMin: number
-		niceMax: number
-	}
-	yAxisVal: {
-		tickCount: number
-		niceMin: number
-		niceMax: number
-	}
+	xAxisData: {
+		x1: number
+		x2: number
+		y1: number
+		y2: number
+		maxLabel: number
+		minLabel: number
+		maxLabelX: number
+		maxLabelY: number
+		minLabelX: number
+		minLabelY: number
+		showLabel: boolean
+		labelAnchor: "start" | "end" | "middle"
+	}[]
+	yAxisData: {
+		x1: number
+		x2: number
+		y1: number
+		y2: number
+		maxLabel: number
+		minLabel: number
+		maxLabelX: number
+		maxLabelY: number
+		minLabelX: number
+		minLabelY: number
+		showLabel: boolean
+		labelAnchor: "start" | "end" | "middle"
+	}[]
 	fontSize: number
 	isDate: boolean
 	yLabelPos: "left" | "right"
+	labelComponent?: (
+		label: LabelData,
+		x: number,
+		y: number,
+		fontSize: number,
+	) => React.ReactNode
 }
 
 export const ChartAxes = ({
-	paddingX,
-	paddingY,
-	chartHeight,
-	chartWidth,
 	xAxisData,
 	yAxisData,
 	fontSize,
-	isDate,
-	yLabelPos,
+	labelComponent,
 }: ChartAxesProps) => {
 	return (
 		<G>
-			<Line
-				x1={paddingX}
-				y1={paddingY + chartHeight}
-				x2={paddingX + chartWidth}
-				y2={paddingY + chartHeight}
-				stroke="#1F3B6680"
-			/>
-			<SVGText
-				x={paddingX - fontSize * yAxisVal.niceMin.toString().length}
-				y={paddingY + chartHeight}
-				fontSize={fontSize}
-				textAnchor={"end"}
-			>
-				{1}
-			</SVGText>
-			<Line
-				x1={paddingX}
-				y1={paddingY}
-				x2={paddingX + chartWidth}
-				y2={paddingY}
-				stroke="#1F3B6680"
-			/>
-			<SVGText
-				x={paddingX - 15}
-				y={paddingY}
-				textAnchor={"middle"}
-				fontSize={fontSize}
-			>
-				{yAxisVal.niceMax}
-			</SVGText>
+			{yAxisData.map((axis, i) => (
+				<G>
+					<Line
+						x1={axis.x1}
+						y1={axis.y1}
+						x2={axis.x2}
+						y2={axis.y2}
+						stroke="#1F3B6680"
+					/>
+					<SVGText
+						x={axis.minLabelX}
+						y={axis.minLabelY}
+						fontSize={fontSize}
+						textAnchor={axis.labelAnchor}
+					>
+						{axis.showLabel && axis.minLabel}
+					</SVGText>
+					<SVGText
+						x={axis.maxLabelX}
+						y={axis.maxLabelY}
+						fontSize={fontSize}
+						textAnchor={axis.labelAnchor}
+					>
+						{axis.showLabel && axis.maxLabel}
+					</SVGText>
+				</G>
+			))}
+			{xAxisData.map((axis, i) => (
+				<G>
+					<Line
+						x1={axis.x1}
+						y1={axis.y1}
+						x2={axis.x2}
+						y2={axis.y2}
+						stroke="#1F3B6680"
+					/>
+					{labelComponent &&
+						axis.showLabel &&
+						labelComponent(
+							getLabelData(axis.minLabel, true),
+							axis.minLabelX,
+							axis.minLabelY,
+							fontSize,
+						)}
 
-			<Line
-				x1={paddingX}
-				y1={paddingY}
-				x2={paddingX}
-				y2={paddingY + chartHeight}
-				stroke="none"
-			/>
-			<SVGText
-				x={paddingX}
-				y={paddingY + chartHeight + 15}
-				textAnchor={"middle"}
-				fontSize={fontSize}
-			>
-				{msToDate(xAxisVal.niceMin, "day")}
-			</SVGText>
-			<Line
-				x1={paddingX + chartWidth}
-				y1={paddingY}
-				x2={paddingX + chartWidth}
-				y2={paddingY + chartHeight}
-				stroke="none"
-			/>
-			<SVGText
-				x={paddingX + chartWidth}
-				y={paddingY + chartHeight + 15}
-				textAnchor={"middle"}
-				fontSize={fontSize}
-				transform={`rotate(0,${paddingX + chartWidth}, ${paddingY + chartHeight + 15})`}
-			>
-				{isDate ? msToDate(xAxisVal.niceMax, "day") : xAxisVal.niceMax}
-			</SVGText>
+					{labelComponent &&
+						axis.showLabel &&
+						labelComponent(
+							getLabelData(axis.maxLabel, true),
+							axis.maxLabelX,
+							axis.maxLabelY,
+							fontSize,
+						)}
+				</G>
+			))}
 		</G>
 	)
 }

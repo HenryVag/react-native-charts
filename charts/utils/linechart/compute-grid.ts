@@ -17,7 +17,8 @@ export const computeGrid = (
 	chartWidth: number,
 	labelInterval: number,
 	fontSize: number,
-	yLabelPos: "left" | "right",
+	showXLabels: boolean,
+	yLabelPos: "left" | "right" | "none",
 ) => {
 	const xLineData = []
 	const yLineData = []
@@ -31,6 +32,7 @@ export const computeGrid = (
 	const niceMinY = yAxisVal.niceMin
 	const niceMaxY = yAxisVal.niceMax
 	let showLabel = false
+	const showYLabels = yLabelPos !== "none"
 	let i = 1
 	let j = 1
 	while (i <= xTickCount - 1) {
@@ -64,7 +66,7 @@ export const computeGrid = (
 			y2: y2,
 			val: val,
 			yVal: y1,
-			showLabel: showLabel,
+			showLabel: showXLabels,
 			labelX: labelX,
 			labelY: labelY,
 		})
@@ -90,12 +92,13 @@ export const computeGrid = (
 			paddingY,
 		)
 		const val = Math.round(yAxisVal.niceMin + yTickSpacing * j)
-		let labelX = x1 - fontSize * val.toString().length
-		let labelAnchor = "end"
+		let labelX = x1 - fontSize
+		let labelAnchor = "end" as "start" | "end"
 		if (yLabelPos === "right") {
-			labelX = x2 + fontSize * val.toString().length
+			labelX = x2 + fontSize
 			labelAnchor = "start"
 		}
+		console.log(showYLabels)
 		const labelY = y1
 		yLineData.push({
 			x1: x1,
@@ -106,6 +109,7 @@ export const computeGrid = (
 			labelX: labelX,
 			labelY: labelY,
 			labelAnchor: labelAnchor,
+			showLabels: showYLabels,
 		})
 		j++
 	}

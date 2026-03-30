@@ -23,7 +23,8 @@ type ChartGridProps = {
 		labelX: number
 		labelY: number
 		val: number
-		labelAnchor: "start" | "end" | "middle"
+		labelAnchor: "start" | "end"
+		showLabels: boolean
 	}[]
 	isDate: boolean
 	labelFontSize: number
@@ -73,7 +74,7 @@ export const ChartGrid = ({
 						textAnchor={line.labelAnchor}
 						fontSize={labelFontSize}
 					>
-						{line.val}
+						{line.showLabels && line.val}
 					</SVGText>
 				</G>
 			))}

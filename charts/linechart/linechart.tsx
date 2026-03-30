@@ -7,6 +7,7 @@ import Svg, {
 	Polyline,
 	Text as SVGText,
 } from "react-native-svg"
+import { computeAxes } from "../utils/linechart/compute-axes"
 import { computeDataPoints } from "../utils/linechart/compute-datapoints"
 import {
 	calculateGridValues,
@@ -29,7 +30,8 @@ type LineChartProps = {
 	gridStrokeY?: string
 	gridStrokeWidth: number
 	gridOpacity?: string | number
-	yLabelPos?: "left" | "right"
+	showXLabels?: boolean
+	showYLabels?: "left" | "right" | "none"
 	labelProp?: (
 		label: LabelData,
 		x: number,
@@ -54,7 +56,8 @@ const LineChart = ({
 	gridStrokeY,
 	gridStrokeWidth,
 	gridOpacity,
-	yLabelPos,
+	showXLabels,
+	showYLabels,
 	labelProp,
 }: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
@@ -74,7 +77,8 @@ const LineChart = ({
 	const safeGridStroke = gridStroke ?? "black"
 	const safeGridOpacity = gridOpacity ?? "50%"
 	const safeGridStrokeWidth = gridStrokeWidth ?? 10
-	const safeYLabelPos = yLabelPos ?? "left"
+	const safeShowXLabel = showXLabels !== false
+	const safeYLabelPos = showYLabels ?? "left"
 
 	const safeLabelInterval =
 		labelInterval && labelInterval > 0 ? labelInterval : 1
@@ -104,6 +108,7 @@ const LineChart = ({
 	const chartWidth = dimensions.width - paddingX * 2
 	const chartHeight = dimensions.height - paddingY * 2
 
+	//TODO: Change to xGridData and yGridData
 	const { xLineData, yLineData } = computeGrid(
 		xAxisVal,
 		yAxisVal,
@@ -113,10 +118,22 @@ const LineChart = ({
 		chartWidth,
 		safeLabelInterval,
 		labelFontSize,
+		safeShowXLabel,
 		safeYLabelPos,
 	)
 
-    const {}
+	const { xAxisData, yAxisData } = computeAxes(
+		xAxisVal,
+		yAxisVal,
+		paddingX,
+		paddingY,
+		chartHeight,
+		chartWidth,
+		safeLabelInterval,
+		labelFontSize,
+		safeShowXLabel,
+		safeYLabelPos,
+	)
 
 	const dataPoints = computeDataPoints(
 		data,
@@ -156,18 +173,18 @@ const LineChart = ({
 					yStroke={gridStrokeY}
 					strokeWidth={scalableGridStrokeWidth}
 					opacity={safeGridOpacity}
-					yLabelPos={safeYLabelPos}
 				/>
 				<ChartAxes
 					paddingX={paddingX}
 					paddingY={paddingY}
 					chartHeight={chartHeight}
 					chartWidth={chartWidth}
-					xAxisVal={xAxisVal}
-					yAxisVal={yAxisVal}
+					xAxisData={xAxisData}
+					yAxisData={yAxisData}
 					fontSize={labelFontSize}
 					isDate={chartAxisValues.isDate}
 					yLabelPos={safeYLabelPos}
+					labelComponent={labelProp}
 				/>
 
 				{dataPoints.map((point, i) => (
