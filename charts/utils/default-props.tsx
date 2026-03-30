@@ -49,29 +49,14 @@ export const LineChartLabel = ({
 	fontSize: number
 }) => {
 	return (
-		<G>
-			<SVGText
-				x={x}
-				y={y + fontSize + 1}
-				textAnchor="middle"
-				fontSize={fontSize}
-			>
+		<G transform={`translate(${x}, ${y})`}>
+			<SVGText dy={fontSize} textAnchor="middle" fontSize={fontSize}>
 				{top}
 			</SVGText>
-			<SVGText
-				x={x}
-				y={y + fontSize * 2}
-				textAnchor="middle"
-				fontSize={fontSize}
-			>
+			<SVGText dy={fontSize * 2} textAnchor="middle" fontSize={fontSize}>
 				-
 			</SVGText>
-			<SVGText
-				x={x}
-				y={y + fontSize * 3}
-				textAnchor="middle"
-				fontSize={fontSize}
-			>
+			<SVGText y={fontSize * 3} textAnchor="middle" fontSize={fontSize}>
 				{bottom}
 			</SVGText>
 		</G>
