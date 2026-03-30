@@ -1,5 +1,4 @@
-import { toSvgX, toSvgY } from "./helpers"
-
+import { getLabelData, toSvgX, toSvgY } from "./helpers"
 export const computeAxes = (
 	xAxisVal: {
 		tickCount: number
@@ -15,116 +14,119 @@ export const computeAxes = (
 	paddingY: number,
 	chartHeight: number,
 	chartWidth: number,
-	labelInterval: number,
 	fontSize: number,
-	yLabelPos: "left" | "right",
+	showXLabels: boolean,
+	showYLabels: "left" | "right" | "none" | undefined,
 ) => {
-	const xLineData = []
-	const yLineData = []
-	const xTickCount = xAxisVal.tickCount
-	const yTickCount = yAxisVal.tickCount
-	const xTickSpacing = (xAxisVal.niceMax - xAxisVal.niceMin) / xTickCount
+	let xAxisData = []
+	let yAxisData = []
 
-	const yTickSpacing = (yAxisVal.niceMax - yAxisVal.niceMin) / (yTickCount + 1)
 	const niceMinX = xAxisVal.niceMin
 	const niceMaxX = xAxisVal.niceMax
 	const niceMinY = yAxisVal.niceMin
 	const niceMaxY = yAxisVal.niceMax
-	let showLabel = false
-	let i = 1
-	let j = 1
-	while (i <= xTickCount - 1) {
-		const x1 = toSvgX(
-			niceMinX + xTickSpacing * i,
+	const showTopLabel = false
+	const showBottomLabel = showXLabels
+
+	const showRightLabel = showYLabels === "right"
+	const showLeftLabel = showYLabels === "left"
+
+	const maxLabelY = getLabelData(niceMaxY, false).value
+	const minLabelY = getLabelData(niceMinY, false).value
+
+	const leftAxis = {
+		x1: toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX),
+		y1: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
+		x2: toSvgX(niceMinX, niceMinX, niceMaxX, chartWidth, paddingX),
+		y2: toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY),
+		showLabel: showLeftLabel,
+		maxLabel: maxLabelY,
+		minLabel: minLabelY,
+		maxLabelX:
+			toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX) -
+			fontSize,
+		maxLabelY: toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY),
+		minLabelX:
+			toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX) -
+			fontSize,
+		minLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
+		labelAnchor: "end" as const,
+	}
+
+	const rightAxis = {
+		x1: toSvgX(niceMaxX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX),
+		y1: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
+		x2: toSvgX(niceMaxX, niceMinX, niceMaxX, chartWidth, paddingX),
+		y2: toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY),
+		showLabel: showRightLabel,
+		maxLabel: maxLabelY,
+		minLabel: minLabelY,
+		maxLabelX:
+			toSvgX(niceMaxX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX) +
+			fontSize,
+		maxLabelY: toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY),
+		minLabelX:
+			toSvgX(niceMaxX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX) +
+			fontSize,
+		minLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
+		labelAnchor: "start" as const,
+	}
+	const bottomAxis = {
+		x1: toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX),
+		y1: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
+		x2: toSvgX(niceMaxX, niceMinX, niceMaxX, chartWidth, paddingX),
+		y2: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
+		showLabel: showBottomLabel,
+		maxLabel: niceMaxX,
+		minLabel: niceMaxY,
+		maxLabelX: toSvgX(
+			niceMaxX,
 			niceMinX,
 			xAxisVal.niceMax,
 			chartWidth,
 			paddingX,
-		)
-
-		const x2 = toSvgX(
-			niceMinX + xTickSpacing * i,
+		),
+		maxLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
+		minLabelX: toSvgX(
 			niceMinX,
-			niceMaxX,
+			niceMinX,
+			xAxisVal.niceMax,
 			chartWidth,
 			paddingX,
-		)
-		const y1 = toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY)
-		const y2 = toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY)
-		const val = Math.round(niceMinX + xTickSpacing * i)
-		const labelX = x1 - fontSize * val.toString().length
-		const labelY = y1
-		if (i % labelInterval === 0) {
-			showLabel = true
-		}
-		xLineData.push({
-			x1: x1,
-			x2: x2,
-			y1: y1,
-			y2: y2,
-			val: val,
-			yVal: y1,
-			showLabel: showLabel,
-			labelX: labelX,
-			labelY: labelY,
-		})
-		showLabel = false
-		i++
+		),
+		minLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
+		labelAnchor: "middle" as const,
 	}
 
-	while (j <= yTickCount) {
-		const x1 = toSvgX(niceMinX, niceMinX, niceMaxX, chartWidth, paddingX)
-		const x2 = toSvgX(niceMaxX, niceMinX, niceMaxX, chartWidth, paddingX)
-		const y1 = toSvgY(
-			niceMinY + yTickSpacing * j,
-			niceMinY,
-			niceMaxY,
-			chartHeight,
-			paddingY,
-		)
-		const y2 = toSvgY(
-			niceMinY + yTickSpacing * j,
-			niceMinY,
-			niceMaxY,
-			chartHeight,
-			paddingY,
-		)
-		const val = Math.round(yAxisVal.niceMin + yTickSpacing * j)
-		let labelX = x1 - fontSize * val.toString().length
-		let labelAnchor = "end"
-		if (yLabelPos === "right") {
-			labelX = x2 + fontSize * val.toString().length
-			labelAnchor = "start"
-		}
-		const labelY = y1
-		yLineData.push({
-			x1: x1,
-			x2: x2,
-			y1: y1,
-			y2: y2,
-			val: val,
-			labelX: labelX,
-			labelY: labelY,
-			labelAnchor: labelAnchor,
-		})
-		j++
+	const topAxis = {
+		x1: toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX),
+		y1: toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY),
+		x2: toSvgX(niceMaxX, niceMinX, niceMaxX, chartWidth, paddingX),
+		y2: toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY),
+		maxLabel: niceMaxX,
+		minLabel: niceMinX,
+		maxLabelX: toSvgX(
+			niceMaxX,
+			niceMinX,
+			xAxisVal.niceMax,
+			chartWidth,
+			paddingX,
+		),
+		maxLabelY:
+			toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY) -
+			fontSize * 4,
+		minLabelX: toSvgX(
+			niceMinX,
+			niceMinX,
+			xAxisVal.niceMax,
+			chartWidth,
+			paddingX,
+		),
+		minLabelY: toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY),
+		showLabel: showTopLabel,
+		labelAnchor: "middle" as const,
 	}
-
-	const xAxisY = toSvgY(
-		Math.max(yAxisVal.niceMin, Math.min(0, yAxisVal.niceMax)),
-		niceMinY,
-		niceMaxY,
-		chartHeight,
-		paddingY,
-	)
-
-	const yAxisX = toSvgX(
-		Math.max(xAxisVal.niceMin, Math.min(0, xAxisVal.niceMax)),
-		niceMinX,
-		niceMaxX,
-		chartWidth,
-		paddingX,
-	)
-
-	return { xLineData, yLineData, xAxisY, yAxisX }
+	xAxisData = [topAxis, bottomAxis]
+	yAxisData = [leftAxis, rightAxis]
+	return { xAxisData, yAxisData }
 }
