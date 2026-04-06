@@ -1,25 +1,39 @@
-import Svg, { Circle } from "react-native-svg"
+import { ColorValue } from "react-native"
+import Svg, { Circle, G } from "react-native-svg"
 
 type DataPointProps = {
+	cx: number
+	cy: number
 	radius: number
-	fill?: string
-	stroke?: string
+	fill: string
+	stroke?: ColorValue
+	strokeWidth: number
+	isVisible: boolean
 }
 
-const DataPoint = () => {
-	//TODO: Add dynamic scaling
-	//TODO: Add modifyable props
+export const DataPoint = ({
+	cx,
+	cy,
+	radius,
+	fill,
+	stroke,
+	strokeWidth,
+	isVisible,
+}: DataPointProps) => {
 	return (
-		<Svg width={100} height={100}>
-			<Circle
-				fill={"red"}
-				cx={50}
-				cy={50}
-				r={25}
-				stroke={"black"}
-				strokeWidth={2}
-			/>
-		</Svg>
+		<>
+			{isVisible && (
+				<Circle
+					fill={fill}
+					fillOpacity={"100%"}
+					cx={cx}
+					cy={cy}
+					r={radius}
+					stroke={stroke}
+					strokeWidth={strokeWidth}
+				/>
+			)}
+		</>
 	)
 }
 
