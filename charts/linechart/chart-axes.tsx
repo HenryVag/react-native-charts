@@ -1,3 +1,4 @@
+import { ColorValue } from "react-native"
 import { G, Line, Text as SVGText } from "react-native-svg"
 import { LineChartLabel } from "../utils/default-props"
 import { getLabelData, msToDate, niceMaxDate } from "../utils/linechart/helpers"
@@ -21,24 +22,29 @@ type ChartAxesProps = {
 		minLabelY: number
 		showLabel: boolean
 		labelAnchor: "start" | "end" | "middle"
+		showAxis: boolean
 	}[]
 	yAxisData: {
 		x1: number
 		x2: number
 		y1: number
 		y2: number
-		maxLabel: number
-		minLabel: number
+		maxLabel: string
+		minLabel: string
 		maxLabelX: number
 		maxLabelY: number
 		minLabelX: number
 		minLabelY: number
 		showLabel: boolean
 		labelAnchor: "start" | "end" | "middle"
+		showAxis: boolean
 	}[]
 	fontSize: number
-	isDate: boolean
-	yLabelPos: "left" | "right"
+	hasDates: boolean
+	strokeWidth: number
+	opacity: number | string
+	xAxisStroke: ColorValue
+	yAxisStroke: ColorValue
 	labelComponent?: (
 		label: LabelData,
 		x: number,
@@ -51,19 +57,28 @@ export const ChartAxes = ({
 	xAxisData,
 	yAxisData,
 	fontSize,
+	hasDates,
+	strokeWidth,
+	opacity,
+	xAxisStroke,
+	yAxisStroke,
 	labelComponent,
 }: ChartAxesProps) => {
 	return (
 		<G>
 			{yAxisData.map((axis, i) => (
-				<G>
-					<Line
-						x1={axis.x1}
-						y1={axis.y1}
-						x2={axis.x2}
-						y2={axis.y2}
-						stroke="#1F3B6680"
-					/>
+				<>
+					{axis.showAxis && (
+						<Line
+							x1={axis.x1}
+							y1={axis.y1}
+							x2={axis.x2}
+							y2={axis.y2}
+							stroke={yAxisStroke}
+							strokeWidth={strokeWidth}
+							opacity={opacity}
+						/>
+					)}
 					<SVGText
 						x={axis.minLabelX}
 						y={axis.minLabelY}
@@ -80,35 +95,38 @@ export const ChartAxes = ({
 					>
 						{axis.showLabel && axis.maxLabel}
 					</SVGText>
-				</G>
+				</>
 			))}
 			{xAxisData.map((axis, i) => (
-				<G>
-					<Line
-						x1={axis.x1}
-						y1={axis.y1}
-						x2={axis.x2}
-						y2={axis.y2}
-						stroke="#1F3B6680"
-					/>
+				<>
+					{axis.showAxis && (
+						<Line
+							x1={axis.x1}
+							y1={axis.y1}
+							x2={axis.x2}
+							y2={axis.y2}
+							stroke={xAxisStroke}
+							strokeWidth={strokeWidth}
+							opacity={opacity}
+						/>
+					)}
 					{labelComponent &&
 						axis.showLabel &&
 						labelComponent(
-							getLabelData(axis.minLabel, true),
+							getLabelData(axis.minLabel, hasDates),
 							axis.minLabelX,
 							axis.minLabelY,
 							fontSize,
 						)}
-
 					{labelComponent &&
 						axis.showLabel &&
 						labelComponent(
-							getLabelData(axis.maxLabel, true),
+							getLabelData(axis.maxLabel, hasDates),
 							axis.maxLabelX,
 							axis.maxLabelY,
 							fontSize,
 						)}
-				</G>
+				</>
 			))}
 		</G>
 	)

@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react"
-import { Text, View } from "react-native"
+import { ColorValue, Text, View } from "react-native"
 import Svg, {
 	Circle,
 	G,
@@ -15,8 +15,10 @@ import {
 } from "../utils/linechart/compute-grid"
 import { calculateTicks } from "../utils/linechart/compute-linechart"
 import { msToDate } from "../utils/linechart/helpers"
+import { validateData } from "../utils/linechart/validate-data"
 import { ChartAxes } from "./chart-axes"
 import { ChartGrid } from "./chart-grid"
+import DataPoint from "./data-point"
 
 export type LabelData = Record<string, string>
 type LineChartProps = {
@@ -25,13 +27,22 @@ type LineChartProps = {
 	yTickCountTarget?: number // 2- 20,
 	dateTickInterval?: "day" | "week" | "month" | "year"
 	labelInterval?: number
-	gridStroke?: string
-	gridStrokeX?: string
-	gridStrokeY?: string
-	gridStrokeWidth: number
-	gridOpacity?: string | number
+	xAxisStroke?: ColorValue
+	yAxisStroke?: ColorValue
+	gridStroke?: ColorValue
+	gridStrokeX?: ColorValue
+	gridStrokeY?: ColorValue
+	opacity?: string | number
+	strokeWidth: number
 	showXLabels?: boolean
 	showYLabels?: "left" | "right" | "none"
+	showXAxis?: boolean
+	showYAxis?: boolean
+	dataPointFill?: string
+	dataPointRadius?: number
+	dataPointStroke?: ColorValue
+	dataPointStrokeWidth: number
+	showDatapoints: boolean
 	labelProp?: (
 		label: LabelData,
 		x: number,
@@ -49,15 +60,24 @@ const LineChart = ({
 	data,
 	xTickCountTarget,
 	yTickCountTarget,
-	labelInterval,
 	dateTickInterval,
+	labelInterval,
+	xAxisStroke,
+	yAxisStroke,
 	gridStroke,
 	gridStrokeX,
 	gridStrokeY,
-	gridStrokeWidth,
-	gridOpacity,
+	opacity,
+	strokeWidth,
 	showXLabels,
 	showYLabels,
+	showXAxis,
+	showYAxis,
+	dataPointFill,
+	dataPointRadius,
+	dataPointStroke,
+	dataPointStrokeWidth,
+	showDatapoints,
 	labelProp,
 }: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
@@ -71,19 +91,38 @@ const LineChart = ({
 	//Component height and width are determined by the parent container
 	//The component fills the container
 	//Size is determined by parent container flex and width values.
+
+	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+	const validatedData = validateData(data)
+	if (validatedData === null) {
+		return null
+	}
+	const { sortedInputArr, hasDates } = validatedData
+
 	const safeTickCountTargetX = Math.min(Math.max(xTickCountTarget ?? 3, 2), 20)
 	const safeTickCountTargetY = Math.min(Math.max(yTickCountTarget ?? 3, 2), 20)
 	const chartAxisValues = calculateGridValues(data)
 	const safeGridStroke = gridStroke ?? "black"
-	const safeGridOpacity = gridOpacity ?? "50%"
-	const safeGridStrokeWidth = gridStrokeWidth ?? 10
+	const safeXAxisStroke = xAxisStroke ?? safeGridStroke
+	const safeYAxisStroke = yAxisStroke ?? safeGridStroke
+
+	const safeOpacity = opacity ?? "100%"
+	const safeStrokeWidth = strokeWidth ?? 10
 	const safeShowXLabel = showXLabels !== false
 	const safeYLabelPos = showYLabels ?? "left"
 
 	const safeLabelInterval =
 		labelInterval && labelInterval > 0 ? labelInterval : 1
 	const safeDateTickInterval = dateTickInterval ?? "week"
-	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+	const safeShowXAxis = showXAxis ?? true
+	const safeShowYAxis = showYAxis ?? true
+
+	//Datapoint props
+	const safeDataPointFill = dataPointFill ?? "black"
+	const safeDataPointRadius = dataPointRadius ?? 2
+	const safeDataPointStroke = dataPointStroke ?? "black"
+	const safeDataPointStrokeWidth = dataPointStrokeWidth ?? 1
+	const safeShowDataPoints = showDatapoints ?? true
 
 	const xAxisVal = calculateTicks(
 		safeTickCountTargetX,
@@ -100,14 +139,16 @@ const LineChart = ({
 	)
 
 	const labelFontSize = (10 / 225) * dimensions.height
-	const scalableGridStrokeWidth =
-		(safeGridStrokeWidth / 1000) * dimensions.height
+	const scalableStrokeWidth =
+		(safeStrokeWidth / 1000) *
+		(dimensions.height - (dimensions.height * 0.1 + labelFontSize) * 1.5)
 	const paddingX = (dimensions.width * 0.1 + labelFontSize) * 1.1
 	const paddingY = (dimensions.height * 0.1 + labelFontSize) * 1.5
-
 	const chartWidth = dimensions.width - paddingX * 2
 	const chartHeight = dimensions.height - paddingY * 2
-
+	const scalableRadius = safeDataPointRadius * chartHeight * 0.05
+	const scalableDataPointStrokeWidth =
+		safeDataPointStrokeWidth * (scalableRadius / 10)
 	//TODO: Change to xGridData and yGridData
 	const { xLineData, yLineData } = computeGrid(
 		xAxisVal,
@@ -132,10 +173,12 @@ const LineChart = ({
 		labelFontSize,
 		safeShowXLabel,
 		safeYLabelPos,
+		safeShowXAxis,
+		safeShowYAxis,
 	)
 
 	const dataPoints = computeDataPoints(
-		data,
+		sortedInputArr,
 		paddingX,
 		paddingY,
 		chartWidth,
@@ -170,8 +213,8 @@ const LineChart = ({
 					stroke={safeGridStroke}
 					xStroke={gridStrokeX}
 					yStroke={gridStrokeY}
-					strokeWidth={scalableGridStrokeWidth}
-					opacity={safeGridOpacity}
+					strokeWidth={scalableStrokeWidth}
+					opacity={safeOpacity}
 				/>
 				<ChartAxes
 					paddingX={paddingX}
@@ -181,15 +224,33 @@ const LineChart = ({
 					xAxisData={xAxisData}
 					yAxisData={yAxisData}
 					fontSize={labelFontSize}
-					isDate={chartAxisValues.isDate}
-					yLabelPos={safeYLabelPos}
+					hasDates={hasDates}
+					strokeWidth={scalableStrokeWidth}
+					opacity={safeOpacity}
 					labelComponent={labelProp}
+					xAxisStroke={safeXAxisStroke}
+					yAxisStroke={safeYAxisStroke}
 				/>
 
+				<Polyline
+					points={polyLineStr}
+					fill="none"
+					stroke="black"
+					strokeWidth={scalableStrokeWidth}
+				/>
 				{dataPoints.map((point, i) => (
-					<Circle cx={point.cx} cy={point.cy} key={i} r={2} />
+					<>
+						<DataPoint
+							cx={point.cx}
+							cy={point.cy}
+							fill={safeDataPointFill}
+							radius={scalableRadius}
+							stroke={safeDataPointStroke}
+							strokeWidth={scalableDataPointStrokeWidth}
+							isVisible={safeShowDataPoints}
+						/>
+					</>
 				))}
-				<Polyline points={polyLineStr} fill="none" stroke="black" />
 			</Svg>
 		</View>
 	)

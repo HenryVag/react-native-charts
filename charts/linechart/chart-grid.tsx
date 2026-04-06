@@ -1,3 +1,4 @@
+import { ColorValue } from "react-native"
 import Svg, { G, Line, Text as SVGText } from "react-native-svg"
 import { LineChartLabel } from "../utils/default-props"
 import { getLabelData, msToDate } from "../utils/linechart/helpers"
@@ -28,9 +29,9 @@ type ChartGridProps = {
 	}[]
 	isDate: boolean
 	labelFontSize: number
-	stroke: string
-	xStroke?: string
-	yStroke?: string
+	stroke: ColorValue
+	xStroke?: ColorValue
+	yStroke?: ColorValue
 	strokeWidth: number
 	opacity: string | number
 
