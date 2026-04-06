@@ -17,6 +17,8 @@ export const computeAxes = (
 	fontSize: number,
 	showXLabels: boolean,
 	showYLabels: "left" | "right" | "none" | undefined,
+	showXAxis: boolean,
+	showYAxis: boolean,
 ) => {
 	let xAxisData = []
 	let yAxisData = []
@@ -31,9 +33,9 @@ export const computeAxes = (
 	const showRightLabel = showYLabels === "right"
 	const showLeftLabel = showYLabels === "left"
 
-	const maxLabelY = getLabelData(niceMaxY, false).value
-	const minLabelY = getLabelData(niceMinY, false).value
-
+	const maxLabelY = getLabelData(niceMaxY, false).valueX
+	const minLabelY = getLabelData(niceMinY, false).valueX
+	console.log(maxLabelY)
 	const leftAxis = {
 		x1: toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX),
 		y1: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
@@ -51,6 +53,7 @@ export const computeAxes = (
 			fontSize,
 		minLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
 		labelAnchor: "end" as const,
+		showAxis: showYAxis,
 	}
 
 	const rightAxis = {
@@ -70,6 +73,7 @@ export const computeAxes = (
 			fontSize,
 		minLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
 		labelAnchor: "start" as const,
+		showAxis: showYAxis,
 	}
 	const bottomAxis = {
 		x1: toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX),
@@ -78,7 +82,7 @@ export const computeAxes = (
 		y2: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
 		showLabel: showBottomLabel,
 		maxLabel: niceMaxX,
-		minLabel: niceMaxY,
+		minLabel: niceMinX,
 		maxLabelX: toSvgX(
 			niceMaxX,
 			niceMinX,
@@ -96,6 +100,7 @@ export const computeAxes = (
 		),
 		minLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
 		labelAnchor: "middle" as const,
+		showAxis: showXAxis,
 	}
 
 	const topAxis = {
@@ -125,6 +130,7 @@ export const computeAxes = (
 		minLabelY: toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY),
 		showLabel: showTopLabel,
 		labelAnchor: "middle" as const,
+		showAxis: showXAxis,
 	}
 	xAxisData = [topAxis, bottomAxis]
 	yAxisData = [leftAxis, rightAxis]

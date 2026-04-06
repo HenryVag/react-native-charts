@@ -145,6 +145,6 @@ export const getLabelData = (val: number, isDate: boolean): LabelData => {
 		}
 	}
 	return {
-		value: String(val),
+		valueX: String(val),
 	}
 }
