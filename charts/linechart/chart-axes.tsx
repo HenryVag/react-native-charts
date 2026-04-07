@@ -39,6 +39,19 @@ type ChartAxesProps = {
 		labelAnchor: "start" | "end" | "middle"
 		showAxis: boolean
 	}[]
+	bottomLabelData: {
+		x: number
+		y: number
+		showLabel: boolean
+		label: string
+	}
+	topLabelData: {
+		x: number
+		y: number
+		showLabel: boolean
+		labelAnchor: string
+		label: string
+	}
 	fontSize: number
 	hasDates: boolean
 	strokeWidth: number
@@ -56,6 +69,8 @@ type ChartAxesProps = {
 export const ChartAxes = ({
 	xAxisData,
 	yAxisData,
+	bottomLabelData,
+	topLabelData,
 	fontSize,
 	hasDates,
 	strokeWidth,
@@ -64,6 +79,7 @@ export const ChartAxes = ({
 	yAxisStroke,
 	labelComponent,
 }: ChartAxesProps) => {
+	console.log(bottomLabelData)
 	return (
 		<G>
 			{yAxisData.map((axis, i) => (
@@ -128,6 +144,28 @@ export const ChartAxes = ({
 						)}
 				</>
 			))}
+
+			{bottomLabelData.showLabel && (
+				<SVGText
+					x={bottomLabelData.x}
+					y={bottomLabelData.y}
+					fontSize={fontSize}
+					fontFamily="Poppins_400Regular"
+				>
+					VKO
+				</SVGText>
+			)}
+			{topLabelData.showLabel && (
+				<SVGText
+					x={topLabelData.x}
+					y={topLabelData.y}
+					fontSize={fontSize}
+					textAnchor={topLabelData.labelAnchor}
+					fontFamily="Poppins_400Regular"
+				>
+					P.
+				</SVGText>
+			)}
 		</G>
 	)
 }

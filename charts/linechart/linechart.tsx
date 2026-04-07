@@ -67,6 +67,7 @@ const LineChart = ({
 	gridStroke,
 	gridStrokeX,
 	gridStrokeY,
+
 	opacity,
 	strokeWidth,
 	showXLabels,
@@ -93,6 +94,15 @@ const LineChart = ({
 	//Size is determined by parent container flex and width values.
 
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+
+	if (dimensions.height === 0 || dimensions.width === 0) {
+		return (
+			<View
+				style={{ flex: 1 }}
+				onLayout={(e) => setDimensions(e.nativeEvent.layout)}
+			/>
+		)
+	}
 	const validatedData = validateData(data)
 	if (validatedData === null) {
 		return null
@@ -146,6 +156,8 @@ const LineChart = ({
 	const paddingY = (dimensions.height * 0.1 + labelFontSize) * 1.5
 	const chartWidth = dimensions.width - paddingX * 2
 	const chartHeight = dimensions.height - paddingY * 2
+
+	const bottomLabelSpacing = chartWidth * 0.111
 	const scalableRadius = safeDataPointRadius * chartHeight * 0.05
 	const scalableDataPointStrokeWidth =
 		safeDataPointStrokeWidth * (scalableRadius / 10)
@@ -161,9 +173,10 @@ const LineChart = ({
 		labelFontSize,
 		safeShowXLabel,
 		safeYLabelPos,
+		bottomLabelSpacing,
 	)
 
-	const { xAxisData, yAxisData } = computeAxes(
+	const { xAxisData, yAxisData, bottomLabelData, topLabelData } = computeAxes(
 		xAxisVal,
 		yAxisVal,
 		paddingX,
@@ -175,6 +188,7 @@ const LineChart = ({
 		safeYLabelPos,
 		safeShowXAxis,
 		safeShowYAxis,
+		bottomLabelSpacing,
 	)
 
 	const dataPoints = computeDataPoints(
@@ -185,15 +199,18 @@ const LineChart = ({
 		chartHeight,
 		xAxisVal,
 		yAxisVal,
+		bottomLabelSpacing,
 	)
 
 	let polyLineStr = ""
 	dataPoints.forEach((point, i) => {
+		if (i === 0) {
+			polyLineStr = `${point.cx - bottomLabelSpacing / 1.5} ${point.cy} `
+		}
 		const x = point.cx
 		const y = point.cy
 		polyLineStr = polyLineStr + `${x},${y} `
 	})
-
 	return (
 		<View
 			style={{ flex: 1 }}
@@ -230,6 +247,8 @@ const LineChart = ({
 					labelComponent={labelProp}
 					xAxisStroke={safeXAxisStroke}
 					yAxisStroke={safeYAxisStroke}
+					bottomLabelData={bottomLabelData}
+					topLabelData={topLabelData}
 				/>
 
 				<Polyline

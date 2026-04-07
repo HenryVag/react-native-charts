@@ -19,9 +19,12 @@ export const computeAxes = (
 	showYLabels: "left" | "right" | "none" | undefined,
 	showXAxis: boolean,
 	showYAxis: boolean,
+	bottomLabelSpacing: number,
 ) => {
 	let xAxisData = []
 	let yAxisData = []
+	let topLabelData = {}
+	let bottomLabelData = {}
 
 	const niceMinX = xAxisVal.niceMin
 	const niceMaxX = xAxisVal.niceMax
@@ -35,7 +38,6 @@ export const computeAxes = (
 
 	const maxLabelY = getLabelData(niceMaxY, false).valueX
 	const minLabelY = getLabelData(niceMinY, false).valueX
-	console.log(maxLabelY)
 	const leftAxis = {
 		x1: toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX),
 		y1: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
@@ -91,13 +93,9 @@ export const computeAxes = (
 			paddingX,
 		),
 		maxLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
-		minLabelX: toSvgX(
-			niceMinX,
-			niceMinX,
-			xAxisVal.niceMax,
-			chartWidth,
-			paddingX,
-		),
+		minLabelX:
+			toSvgX(niceMinX, niceMinX, xAxisVal.niceMax, chartWidth, paddingX) +
+			bottomLabelSpacing,
 		minLabelY: toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY),
 		labelAnchor: "middle" as const,
 		showAxis: showXAxis,
@@ -132,7 +130,36 @@ export const computeAxes = (
 		labelAnchor: "middle" as const,
 		showAxis: showXAxis,
 	}
+
+	if (showBottomLabel) {
+		bottomLabelData = {
+			x: bottomAxis.minLabelX - bottomLabelSpacing,
+			y: bottomAxis.y1 + fontSize + fontSize * 1.1,
+			showLabel: showBottomLabel,
+			labelAnchor: "middle",
+			label: "VKO",
+		}
+	}
+
+	if (showLeftLabel) {
+		topLabelData = {
+			x: leftAxis.maxLabelX,
+			y: leftAxis.maxLabelY - fontSize - fontSize * 1.1,
+			showLabel: showLeftLabel || showRightLabel,
+			labelAnchor: leftAxis.labelAnchor,
+			label: "P.",
+		}
+	} else {
+		topLabelData = {
+			x: rightAxis.maxLabelX,
+			y: rightAxis.maxLabelY - fontSize - fontSize * 1.1,
+			showLabel: showLeftLabel || showRightLabel,
+			labelAnchor: rightAxis.labelAnchor,
+			label: "P.",
+		}
+	}
+
 	xAxisData = [topAxis, bottomAxis]
 	yAxisData = [leftAxis, rightAxis]
-	return { xAxisData, yAxisData }
+	return { xAxisData, yAxisData, bottomLabelData, topLabelData }
 }

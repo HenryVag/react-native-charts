@@ -1,3 +1,4 @@
+import { TextComponent } from "react-native"
 import { toSvgX, toSvgY } from "./helpers"
 
 export const computeGrid = (
@@ -19,6 +20,7 @@ export const computeGrid = (
 	fontSize: number,
 	showXLabels: boolean,
 	yLabelPos: "left" | "right" | "none",
+	bottomLabelSpacing: number,
 ) => {
 	const xLineData = []
 	const yLineData = []
@@ -33,14 +35,15 @@ export const computeGrid = (
 	const niceMaxY = yAxisVal.niceMax
 	let showLabel = false
 	const showYLabels = yLabelPos !== "none"
-	let i = 1
+
+	let i = 0
 	let j = 1
 	while (i <= xTickCount - 1) {
 		const x1 = toSvgX(
 			niceMinX + xTickSpacing * i,
 			niceMinX,
 			xAxisVal.niceMax,
-			chartWidth,
+			chartWidth - bottomLabelSpacing,
 			paddingX,
 		)
 
@@ -48,20 +51,20 @@ export const computeGrid = (
 			niceMinX + xTickSpacing * i,
 			niceMinX,
 			niceMaxX,
-			chartWidth,
+			chartWidth - bottomLabelSpacing,
 			paddingX,
 		)
 		const y1 = toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY)
 		const y2 = toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY)
 		const val = Math.round(niceMinX + xTickSpacing * i)
-		const labelX = x1 - fontSize * val.toString().length
+		const labelX = x1 + bottomLabelSpacing
 		const labelY = y1
 		if (i % labelInterval === 0) {
 			showLabel = true
 		}
 		xLineData.push({
-			x1: x1,
-			x2: x2,
+			x1: x1 + bottomLabelSpacing,
+			x2: x2 + bottomLabelSpacing,
 			y1: y1,
 			y2: y2,
 			val: val,
@@ -98,7 +101,6 @@ export const computeGrid = (
 			labelX = x2 + fontSize
 			labelAnchor = "start"
 		}
-		console.log(showYLabels)
 		const labelY = y1
 		yLineData.push({
 			x1: x1,

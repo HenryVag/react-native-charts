@@ -16,6 +16,7 @@ export const computeDataPoints = (
 		niceMin: number
 		niceMax: number
 	},
+	bottomLabelSpacing: number,
 ) => {
 	const pointData = data.map((point, i) => {
 		//Calc x point: x/xNiceMax * chartwidth
@@ -25,7 +26,7 @@ export const computeDataPoints = (
 			point.x,
 			xAxisVal.niceMin,
 			xAxisVal.niceMax,
-			chartWidth,
+			chartWidth - bottomLabelSpacing,
 			paddingX,
 		)
 		const posY = toSvgY(
@@ -35,7 +36,7 @@ export const computeDataPoints = (
 			chartHeight,
 			paddingY,
 		)
-		return { cx: posX, cy: posY }
+		return { cx: posX + bottomLabelSpacing, cy: posY }
 	})
 	return pointData
 }
