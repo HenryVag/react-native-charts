@@ -1,4 +1,13 @@
 import { getLabelData, toSvgX, toSvgY } from "./helpers"
+
+type AxisLabelType = {
+	x: number
+	y: number
+	showLabel: boolean
+	labelAnchor: "end" | "start" | "middle"
+	label: string
+}
+
 export const computeAxes = (
 	xAxisVal: {
 		tickCount: number
@@ -23,8 +32,8 @@ export const computeAxes = (
 ) => {
 	let xAxisData = []
 	let yAxisData = []
-	let topLabelData = {}
-	let bottomLabelData = {}
+	let topLabelData = {} as AxisLabelType
+	let bottomLabelData = {} as AxisLabelType
 
 	const niceMinX = xAxisVal.niceMin
 	const niceMaxX = xAxisVal.niceMax

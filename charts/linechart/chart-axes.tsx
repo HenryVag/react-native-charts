@@ -43,13 +43,14 @@ type ChartAxesProps = {
 		x: number
 		y: number
 		showLabel: boolean
+		labelAnchor: "start" | "end" | "middle"
 		label: string
 	}
 	topLabelData: {
 		x: number
 		y: number
 		showLabel: boolean
-		labelAnchor: string
+		labelAnchor: "start" | "end" | "middle"
 		label: string
 	}
 	fontSize: number
@@ -58,6 +59,7 @@ type ChartAxesProps = {
 	opacity: number | string
 	xAxisStroke: ColorValue
 	yAxisStroke: ColorValue
+	labelFont: string | undefined
 	labelComponent?: (
 		label: LabelData,
 		x: number,
@@ -77,6 +79,7 @@ export const ChartAxes = ({
 	opacity,
 	xAxisStroke,
 	yAxisStroke,
+	labelFont,
 	labelComponent,
 }: ChartAxesProps) => {
 	console.log(bottomLabelData)
@@ -95,22 +98,28 @@ export const ChartAxes = ({
 							opacity={opacity}
 						/>
 					)}
-					<SVGText
-						x={axis.minLabelX}
-						y={axis.minLabelY}
-						fontSize={fontSize}
-						textAnchor={axis.labelAnchor}
-					>
-						{axis.showLabel && axis.minLabel}
-					</SVGText>
-					<SVGText
-						x={axis.maxLabelX}
-						y={axis.maxLabelY}
-						fontSize={fontSize}
-						textAnchor={axis.labelAnchor}
-					>
-						{axis.showLabel && axis.maxLabel}
-					</SVGText>
+					{axis.showLabel && (
+						<SVGText
+							x={axis.minLabelX}
+							y={axis.minLabelY}
+							fontSize={fontSize}
+							textAnchor={axis.labelAnchor}
+							fontFamily={labelFont}
+						>
+							{axis.minLabel}
+						</SVGText>
+					)}
+					{axis.showLabel && (
+						<SVGText
+							x={axis.maxLabelX}
+							y={axis.maxLabelY}
+							fontSize={fontSize}
+							textAnchor={axis.labelAnchor}
+							fontFamily={labelFont}
+						>
+							{axis.maxLabel}
+						</SVGText>
+					)}
 				</>
 			))}
 			{xAxisData.map((axis, i) => (
@@ -150,7 +159,7 @@ export const ChartAxes = ({
 					x={bottomLabelData.x}
 					y={bottomLabelData.y}
 					fontSize={fontSize}
-					fontFamily="Poppins_400Regular"
+					fontFamily={labelFont}
 				>
 					VKO
 				</SVGText>
@@ -161,7 +170,7 @@ export const ChartAxes = ({
 					y={topLabelData.y}
 					fontSize={fontSize}
 					textAnchor={topLabelData.labelAnchor}
-					fontFamily="Poppins_400Regular"
+					fontFamily={labelFont}
 				>
 					P.
 				</SVGText>

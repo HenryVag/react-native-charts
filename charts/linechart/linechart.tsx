@@ -14,7 +14,7 @@ import {
 	computeGrid,
 } from "../utils/linechart/compute-grid"
 import { calculateTicks } from "../utils/linechart/compute-linechart"
-import { msToDate } from "../utils/linechart/helpers"
+import { msToDate, toSvgX } from "../utils/linechart/helpers"
 import { validateData } from "../utils/linechart/validate-data"
 import { ChartAxes } from "./chart-axes"
 import { ChartGrid } from "./chart-grid"
@@ -32,8 +32,11 @@ type LineChartProps = {
 	gridStroke?: ColorValue
 	gridStrokeX?: ColorValue
 	gridStrokeY?: ColorValue
+	showGridX?: boolean
+	showGridY?: boolean
 	opacity?: string | number
 	strokeWidth: number
+	labelFont?: string
 	showXLabels?: boolean
 	showYLabels?: "left" | "right" | "none"
 	showXAxis?: boolean
@@ -43,6 +46,8 @@ type LineChartProps = {
 	dataPointStroke?: ColorValue
 	dataPointStrokeWidth: number
 	showDatapoints: boolean
+	lineStrokeWidth?: number
+	lineStroke?: string
 	labelProp?: (
 		label: LabelData,
 		x: number,
@@ -67,9 +72,11 @@ const LineChart = ({
 	gridStroke,
 	gridStrokeX,
 	gridStrokeY,
-
+	showGridX,
+	showGridY,
 	opacity,
 	strokeWidth,
+	labelFont,
 	showXLabels,
 	showYLabels,
 	showXAxis,
@@ -79,6 +86,8 @@ const LineChart = ({
 	dataPointStroke,
 	dataPointStrokeWidth,
 	showDatapoints,
+	lineStrokeWidth,
+	lineStroke,
 	labelProp,
 }: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
@@ -118,6 +127,7 @@ const LineChart = ({
 
 	const safeOpacity = opacity ?? "100%"
 	const safeStrokeWidth = strokeWidth ?? 10
+	const safeLineStrokeWidth = lineStrokeWidth ?? 10
 	const safeShowXLabel = showXLabels !== false
 	const safeYLabelPos = showYLabels ?? "left"
 
@@ -126,6 +136,9 @@ const LineChart = ({
 	const safeDateTickInterval = dateTickInterval ?? "week"
 	const safeShowXAxis = showXAxis ?? true
 	const safeShowYAxis = showYAxis ?? true
+
+	const safeShowGridX = showGridX ?? true
+	const safeShowGridY = showGridY ?? true
 
 	//Datapoint props
 	const safeDataPointFill = dataPointFill ?? "black"
@@ -151,6 +164,9 @@ const LineChart = ({
 	const labelFontSize = (10 / 225) * dimensions.height
 	const scalableStrokeWidth =
 		(safeStrokeWidth / 1000) *
+		(dimensions.height - (dimensions.height * 0.1 + labelFontSize) * 1.5)
+	const scalableLineStrokeWidth =
+		(safeLineStrokeWidth / 1000) *
 		(dimensions.height - (dimensions.height * 0.1 + labelFontSize) * 1.5)
 	const paddingX = (dimensions.width * 0.1 + labelFontSize) * 1.1
 	const paddingY = (dimensions.height * 0.1 + labelFontSize) * 1.5
@@ -232,6 +248,9 @@ const LineChart = ({
 					yStroke={gridStrokeY}
 					strokeWidth={scalableStrokeWidth}
 					opacity={safeOpacity}
+					showGridX={safeShowGridX}
+					showGridY={safeShowGridY}
+					labelFont={labelFont}
 				/>
 				<ChartAxes
 					paddingX={paddingX}
@@ -249,13 +268,14 @@ const LineChart = ({
 					yAxisStroke={safeYAxisStroke}
 					bottomLabelData={bottomLabelData}
 					topLabelData={topLabelData}
+					labelFont={labelFont}
 				/>
 
 				<Polyline
 					points={polyLineStr}
 					fill="none"
-					stroke="black"
-					strokeWidth={scalableStrokeWidth}
+					stroke={lineStroke ?? "black"}
+					strokeWidth={scalableLineStrokeWidth}
 				/>
 				{dataPoints.map((point, i) => (
 					<>

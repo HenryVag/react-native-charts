@@ -1,4 +1,4 @@
-import { ColorValue } from "react-native"
+import { ColorValue, FontVariant } from "react-native"
 import Svg, { G, Line, Text as SVGText } from "react-native-svg"
 import { LineChartLabel } from "../utils/default-props"
 import { getLabelData, msToDate } from "../utils/linechart/helpers"
@@ -34,6 +34,9 @@ type ChartGridProps = {
 	yStroke?: ColorValue
 	strokeWidth: number
 	opacity: string | number
+	showGridX: boolean
+	showGridY: boolean
+	labelFont: string | undefined
 
 	labelComponent?: (
 		label: LabelData,
@@ -53,54 +56,64 @@ export const ChartGrid = ({
 	yStroke,
 	strokeWidth,
 	opacity,
+	showGridX,
+	showGridY,
+	labelFont,
 	labelComponent,
 }: ChartGridProps) => {
 	return (
 		<G>
 			{yLineData.map((line, i) => (
-				<G>
-					<Line
-						x1={line.x1}
-						y1={line.y1}
-						x2={line.x2}
-						y2={line.y2}
-						stroke={yStroke ?? stroke}
-						strokeWidth={strokeWidth}
-						opacity={opacity}
-						key={line.y1}
-					/>
-					<SVGText
-						x={line.labelX}
-						y={line.labelY}
-						textAnchor={line.labelAnchor}
-						fontSize={labelFontSize}
-					>
-						{line.showLabels && line.val}
-					</SVGText>
-				</G>
+				<>
+					{showGridY && (
+						<Line
+							x1={line.x1}
+							y1={line.y1}
+							x2={line.x2}
+							y2={line.y2}
+							stroke={yStroke ?? stroke}
+							strokeWidth={strokeWidth}
+							opacity={opacity}
+							key={line.y1}
+						/>
+					)}
+					{line.showLabels && (
+						<SVGText
+							x={line.labelX}
+							y={line.labelY}
+							textAnchor={line.labelAnchor}
+							fontSize={labelFontSize}
+							fontFamily={labelFont}
+						>
+							{line.val}
+						</SVGText>
+					)}
+				</>
 			))}
 			{xLineData.map((line, i) => (
-				<G>
-					<Line
-						x1={line.x1}
-						y1={line.y1}
-						x2={line.x2}
-						y2={line.y2}
-						stroke={xStroke ?? stroke}
-						strokeWidth={strokeWidth}
-						opacity={opacity}
-						key={line.x1}
-					/>
+				<>
+					{showGridX && (
+						<Line
+							x1={line.x1}
+							y1={line.y1}
+							x2={line.x2}
+							y2={line.y2}
+							stroke={xStroke ?? stroke}
+							strokeWidth={strokeWidth}
+							opacity={opacity}
+							key={line.x1}
+						/>
+					)}
 
 					{labelComponent &&
 						line.showLabel &&
 						labelComponent(
 							getLabelData(line.val, isDate),
-							line.x1,
+							line.labelX,
 							line.yVal,
 							labelFontSize,
 						)}
-				</G>
+				</>
 			))}
 		</G>
 	)
