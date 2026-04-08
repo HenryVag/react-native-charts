@@ -36,7 +36,12 @@ export const computeDataPoints = (
 			chartHeight,
 			paddingY,
 		)
-		return { cx: posX + bottomLabelSpacing, cy: posY }
+		return {
+			cx: posX + bottomLabelSpacing,
+			cy: posY,
+			x: Number(point.x),
+			y: point.y,
+		}
 	})
 	return pointData
 }

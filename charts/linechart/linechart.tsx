@@ -5,6 +5,7 @@ import Svg, {
 	G,
 	Line,
 	Polyline,
+	Rect,
 	Text as SVGText,
 } from "react-native-svg"
 import { computeAxes } from "../utils/linechart/compute-axes"
@@ -18,6 +19,7 @@ import { msToDate, toSvgX } from "../utils/linechart/helpers"
 import { validateData } from "../utils/linechart/validate-data"
 import { ChartAxes } from "./chart-axes"
 import { ChartGrid } from "./chart-grid"
+import { ToolTip } from "./chart-tooltip"
 import DataPoint from "./data-point"
 
 export type LabelData = Record<string, string>
@@ -48,6 +50,11 @@ type LineChartProps = {
 	showDatapoints: boolean
 	lineStrokeWidth?: number
 	lineStroke?: string
+	toolTipTitle: string
+	toolTipValueLabel: string
+	toolTipFontSize?: number
+	toolTipTitleFont?: string
+	accessibilityLabel: string
 	labelProp?: (
 		label: LabelData,
 		x: number,
@@ -88,6 +95,11 @@ const LineChart = ({
 	showDatapoints,
 	lineStrokeWidth,
 	lineStroke,
+	toolTipTitle,
+	toolTipValueLabel,
+	toolTipFontSize,
+	toolTipTitleFont,
+	accessibilityLabel,
 	labelProp,
 }: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
@@ -103,6 +115,12 @@ const LineChart = ({
 	//Size is determined by parent container flex and width values.
 
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+	const [selectedDataPoint, setSelectedDataPoint] = useState<null | {
+		cx: number
+		cy: number
+		x: number
+		y: number
+	}>(null)
 
 	if (dimensions.height === 0 || dimensions.width === 0) {
 		return (
@@ -117,7 +135,6 @@ const LineChart = ({
 		return null
 	}
 	const { sortedInputArr, hasDates } = validatedData
-
 	const safeTickCountTargetX = Math.min(Math.max(xTickCountTarget ?? 3, 2), 20)
 	const safeTickCountTargetY = Math.min(Math.max(yTickCountTarget ?? 3, 2), 20)
 	const chartAxisValues = calculateGridValues(data)
@@ -162,6 +179,8 @@ const LineChart = ({
 	)
 
 	const labelFontSize = (10 / 225) * dimensions.height
+	const scalableToolTipFontSize =
+		toolTipFontSize ?? 1 * (10 / 225) * dimensions.height
 	const scalableStrokeWidth =
 		(safeStrokeWidth / 1000) *
 		(dimensions.height - (dimensions.height * 0.1 + labelFontSize) * 1.5)
@@ -227,10 +246,14 @@ const LineChart = ({
 		const y = point.cy
 		polyLineStr = polyLineStr + `${x},${y} `
 	})
+	console.log("label", accessibilityLabel)
+
 	return (
 		<View
 			style={{ flex: 1 }}
 			onLayout={(e) => setDimensions(e.nativeEvent.layout)}
+			accessibilityRole="image"
+			accessibilityLabel={accessibilityLabel}
 		>
 			<Svg
 				width={dimensions.width}
@@ -277,6 +300,16 @@ const LineChart = ({
 					stroke={lineStroke ?? "black"}
 					strokeWidth={scalableLineStrokeWidth}
 				/>
+				<Rect
+					width={dimensions.width}
+					height={dimensions.height}
+					fill={"transparent"}
+					onPress={() => {
+						if (selectedDataPoint) {
+							setSelectedDataPoint(null)
+						}
+					}}
+				/>
 				{dataPoints.map((point, i) => (
 					<>
 						<DataPoint
@@ -287,9 +320,30 @@ const LineChart = ({
 							stroke={safeDataPointStroke}
 							strokeWidth={scalableDataPointStrokeWidth}
 							isVisible={safeShowDataPoints}
+							onPress={() =>
+								setSelectedDataPoint({
+									cx: point.cx,
+									cy: point.cy,
+									x: point.x,
+									y: point.y,
+								})
+							}
 						/>
 					</>
 				))}
+				{selectedDataPoint && (
+					<ToolTip
+						data={selectedDataPoint}
+						chartHeight={chartHeight}
+						chartWidth={chartWidth}
+						dataPointRadius={scalableRadius}
+						labelFont={labelFont}
+						fontSize={scalableToolTipFontSize}
+						toolTipTitleFont={toolTipTitleFont}
+						toolTipTitle={toolTipTitle}
+						toolTipValueLabel={toolTipValueLabel}
+					/>
+				)}
 			</Svg>
 		</View>
 	)
