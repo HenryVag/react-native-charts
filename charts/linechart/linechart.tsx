@@ -54,7 +54,7 @@ type LineChartProps = {
 	toolTipValueLabel: string
 	toolTipFontSize?: number
 	toolTipTitleFont?: string
-	accessibilityLabel: string
+	accessibilityLabel?: string
 	labelProp?: (
 		label: LabelData,
 		x: number,
@@ -99,7 +99,7 @@ const LineChart = ({
 	toolTipValueLabel,
 	toolTipFontSize,
 	toolTipTitleFont,
-	accessibilityLabel,
+	accessibilityLabel = "Line chart",
 	labelProp,
 }: LineChartProps) => {
 	//TODO: Vertical, horizontal lines + full grid functionality
@@ -246,7 +246,6 @@ const LineChart = ({
 		const y = point.cy
 		polyLineStr = polyLineStr + `${x},${y} `
 	})
-	console.log("label", accessibilityLabel)
 
 	return (
 		<View
@@ -254,11 +253,13 @@ const LineChart = ({
 			onLayout={(e) => setDimensions(e.nativeEvent.layout)}
 			accessibilityRole="image"
 			accessibilityLabel={accessibilityLabel}
+			accessible={true}
 		>
 			<Svg
 				width={dimensions.width}
 				height={dimensions.height}
 				style={{ flex: 1 }}
+				aria-hidden={true}
 			>
 				<ChartGrid
 					xLineData={xLineData}
