@@ -22,8 +22,8 @@ export const computeGrid = (
 	yLabelPos: "left" | "right" | "none",
 	bottomLabelSpacing: number,
 ) => {
-	const xLineData = []
-	const yLineData = []
+	const xGridData = []
+	const yGridData = []
 	const xTickCount = xAxisVal.tickCount
 	const yTickCount = yAxisVal.tickCount
 	const xTickSpacing = (xAxisVal.niceMax - xAxisVal.niceMin) / xTickCount
@@ -62,14 +62,14 @@ export const computeGrid = (
 		if (i % labelInterval === 0) {
 			showLabel = true
 		}
-		xLineData.push({
+		xGridData.push({
 			x1: x1 + bottomLabelSpacing,
 			x2: x2 + bottomLabelSpacing,
 			y1: y1,
 			y2: y2,
 			val: val,
 			yVal: y1,
-			showLabel: showXLabels,
+			showLabels: showXLabels,
 			labelX: labelX,
 			labelY: labelY,
 		})
@@ -102,7 +102,7 @@ export const computeGrid = (
 			labelAnchor = "start"
 		}
 		const labelY = y1
-		yLineData.push({
+		yGridData.push({
 			x1: x1,
 			x2: x2,
 			y1: y1,
@@ -132,7 +132,7 @@ export const computeGrid = (
 		paddingX,
 	)
 
-	return { xLineData, yLineData, xAxisY, yAxisX }
+	return { xGridData, yGridData, xAxisY, yAxisX }
 }
 
 export const calculateGridValues = (
