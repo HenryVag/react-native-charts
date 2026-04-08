@@ -11,12 +11,12 @@ export const calculateTicks = (
 	minPoint: number,
 	maxPoint: number,
 	isDate: boolean,
-	interval?: "day" | "week" | "month" | "year" | number,
+	interval?: "day" | "week" | "month" | "year",
 ): { tickCount: number; niceMin: number; niceMax: number } => {
 	let tickCount: number
 	let niceMin: number
 	let niceMax: number
-	if (isDate) {
+	if (isDate && interval) {
 		const day = 86400000 // Time in milliseconds
 		const intervalLookup = {
 			day: day,
