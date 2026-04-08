@@ -4,29 +4,33 @@ import { LineChartLabel } from "../utils/default-props"
 import { getLabelData, msToDate } from "../utils/linechart/helpers"
 import { LabelData } from "./linechart"
 
+type yGridDataProps = {
+	x1: number
+	x2: number
+	y1: number
+	y2: number
+	labelX: number
+	labelY: number
+	val: number
+	labelAnchor: "start" | "end"
+	showLabels: boolean
+}[]
+
+type xGridDataProps = {
+	x1: number
+	x2: number
+	y1: number
+	y2: number
+	labelX: number
+	labelY: number
+	val: number
+	yVal: number
+	showLabels: boolean
+}[]
+
 type ChartGridProps = {
-	xLineData: {
-		x1: number
-		x2: number
-		y1: number
-		y2: number
-		val: number
-		yVal: number
-		labelX: number
-		labelY: number
-		showLabel: boolean
-	}[]
-	yLineData: {
-		x1: number
-		x2: number
-		y1: number
-		y2: number
-		labelX: number
-		labelY: number
-		val: number
-		labelAnchor: "start" | "end"
-		showLabels: boolean
-	}[]
+	xGridData: xGridDataProps
+	yGridData: yGridDataProps
 	isDate: boolean
 	labelFontSize: number
 	stroke: ColorValue
@@ -47,8 +51,8 @@ type ChartGridProps = {
 }
 
 export const ChartGrid = ({
-	xLineData,
-	yLineData,
+	xGridData,
+	yGridData,
 	isDate,
 	labelFontSize,
 	stroke,
@@ -63,7 +67,7 @@ export const ChartGrid = ({
 }: ChartGridProps) => {
 	return (
 		<G>
-			{yLineData.map((line, i) => (
+			{yGridData.map((line, i) => (
 				<>
 					{showGridY && (
 						<Line
@@ -90,7 +94,7 @@ export const ChartGrid = ({
 					)}
 				</>
 			))}
-			{xLineData.map((line, i) => (
+			{xGridData.map((line, i) => (
 				<>
 					{showGridX && (
 						<Line
@@ -106,7 +110,7 @@ export const ChartGrid = ({
 					)}
 
 					{labelComponent &&
-						line.showLabel &&
+						line.showLabels &&
 						labelComponent(
 							getLabelData(line.val, isDate),
 							line.labelX,
