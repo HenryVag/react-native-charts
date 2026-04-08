@@ -60,6 +60,8 @@ type ChartAxesProps = {
 	xAxisStroke: ColorValue
 	yAxisStroke: ColorValue
 	labelFont: string | undefined
+	topLabel: string
+	bottomLabel: string
 	labelComponent?: (
 		label: LabelData,
 		x: number,
@@ -80,6 +82,8 @@ export const ChartAxes = ({
 	xAxisStroke,
 	yAxisStroke,
 	labelFont,
+	topLabel,
+	bottomLabel,
 	labelComponent,
 }: ChartAxesProps) => {
 	console.log(bottomLabelData)
@@ -154,16 +158,6 @@ export const ChartAxes = ({
 				</>
 			))}
 
-			{bottomLabelData.showLabel && (
-				<SVGText
-					x={bottomLabelData.x}
-					y={bottomLabelData.y}
-					fontSize={fontSize}
-					fontFamily={labelFont}
-				>
-					VKO
-				</SVGText>
-			)}
 			{topLabelData.showLabel && (
 				<SVGText
 					x={topLabelData.x}
@@ -172,7 +166,17 @@ export const ChartAxes = ({
 					textAnchor={topLabelData.labelAnchor}
 					fontFamily={labelFont}
 				>
-					P.
+					{topLabel}
+				</SVGText>
+			)}
+			{bottomLabelData.showLabel && (
+				<SVGText
+					x={bottomLabelData.x}
+					y={bottomLabelData.y}
+					fontSize={fontSize}
+					fontFamily={labelFont}
+				>
+					{bottomLabel}
 				</SVGText>
 			)}
 		</G>
