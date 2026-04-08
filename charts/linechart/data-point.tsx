@@ -1,4 +1,4 @@
-import { ColorValue } from "react-native"
+import { ColorValue, Pressable, Text } from "react-native"
 import Svg, { Circle, G } from "react-native-svg"
 
 type DataPointProps = {
@@ -9,6 +9,7 @@ type DataPointProps = {
 	stroke?: ColorValue
 	strokeWidth: number
 	isVisible: boolean
+	onPress?: () => void
 }
 
 export const DataPoint = ({
@@ -19,6 +20,7 @@ export const DataPoint = ({
 	stroke,
 	strokeWidth,
 	isVisible,
+	onPress,
 }: DataPointProps) => {
 	return (
 		<>
@@ -31,6 +33,7 @@ export const DataPoint = ({
 					r={radius}
 					stroke={stroke}
 					strokeWidth={strokeWidth}
+					onPress={onPress}
 				/>
 			)}
 		</>
