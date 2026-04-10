@@ -1,36 +1,15 @@
-import { ColorValue, FontVariant } from "react-native"
-import Svg, { G, Line, Text as SVGText } from "react-native-svg"
-import { LineChartLabel } from "../utils/default-props"
-import { getLabelData, msToDate } from "../utils/linechart/helpers"
-import { LabelData } from "./linechart"
-
-type yGridDataProps = {
-	x1: number
-	x2: number
-	y1: number
-	y2: number
-	labelX: number
-	labelY: number
-	val: number
-	labelAnchor: "start" | "end"
-	showLabels: boolean
-}[]
-
-type xGridDataProps = {
-	x1: number
-	x2: number
-	y1: number
-	y2: number
-	labelX: number
-	labelY: number
-	val: number
-	yVal: number
-	showLabels: boolean
-}[]
+import type { ColorValue } from "react-native"
+import { G, Line, Text as SVGText } from "react-native-svg"
+import { getLabelData } from "@/charts/utils/linechart/helpers"
+import type {
+	LabelData,
+	XGridItem,
+	YGridItem,
+} from "@/charts/utils/linechart/types"
 
 type ChartGridProps = {
-	xGridData: xGridDataProps
-	yGridData: yGridDataProps
+	xGridData: XGridItem[]
+	yGridData: YGridItem[]
 	isDate: boolean
 	labelFontSize: number
 	stroke: ColorValue
@@ -41,7 +20,6 @@ type ChartGridProps = {
 	showGridX: boolean
 	showGridY: boolean
 	labelFont: string | undefined
-
 	labelComponent?: (
 		label: LabelData,
 		x: number,
@@ -67,8 +45,8 @@ export const ChartGrid = ({
 }: ChartGridProps) => {
 	return (
 		<G>
-			{yGridData.map((line, i) => (
-				<>
+			{yGridData.map((line) => (
+				<G key={line.y1}>
 					{showGridY && (
 						<Line
 							x1={line.x1}
@@ -78,7 +56,6 @@ export const ChartGrid = ({
 							stroke={yStroke ?? stroke}
 							strokeWidth={strokeWidth}
 							opacity={opacity}
-							key={line.y1}
 						/>
 					)}
 					{line.showLabels && (
@@ -92,10 +69,10 @@ export const ChartGrid = ({
 							{line.val}
 						</SVGText>
 					)}
-				</>
+				</G>
 			))}
-			{xGridData.map((line, i) => (
-				<>
+			{xGridData.map((line) => (
+				<G key={line.x1}>
 					{showGridX && (
 						<Line
 							x1={line.x1}
@@ -105,7 +82,6 @@ export const ChartGrid = ({
 							stroke={xStroke ?? stroke}
 							strokeWidth={strokeWidth}
 							opacity={opacity}
-							key={line.x1}
 						/>
 					)}
 
@@ -117,7 +93,7 @@ export const ChartGrid = ({
 							line.yVal,
 							labelFontSize,
 						)}
-				</>
+				</G>
 			))}
 		</G>
 	)
