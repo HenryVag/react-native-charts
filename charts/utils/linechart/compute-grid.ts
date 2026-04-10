@@ -1,14 +1,33 @@
-import { TextComponent } from "react-native"
-import { toSvgX, toSvgY } from "./helpers"
+import { getDateWeek, toSvgX, toSvgY } from "@/charts/utils/linechart/helpers"
+import type { XGridItem, YGridItem } from "@/charts/utils/linechart/types"
+/**
+ * Computes the grid line and label data for both axes of the chart.
+ *
+ * Returns arrays of positioned grid line segments and label metadata
+ * ready to be rendered as SVG elements.
+ *
+ * @param xAxisVal - Tick count, nice minimum, and nice maximum for the x-axis.
+ * @param yAxisVal - Tick count, nice minimum, and nice maximum for the y-axis.
+ * @param paddingX - Horizontal padding applied to both sides of the chart.
+ * @param paddingY - Vertical padding applied to both sides of the chart.
+ * @param chartHeight - Renderable height of the chart excluding padding.
+ * @param chartWidth - Renderable width of the chart excluding padding.
+ * @param labelInterval - Renders an x-axis label every nth tick.
+ * @param fontSize - Scaled font size used to offset labels from the axis lines.
+ * @param showXLabels - Whether to render labels along the x-axis.
+ * @param yLabelPos - Which side to render y-axis labels on, or `"none"` to hide them.
+ * @param bottomLabelSpacing - Horizontal offset applied to x-grid lines and labels.
+ * @returns Grid line data for both axes and the SVG positions of the x and y axis baselines.
+ */
 
 export const computeGrid = (
 	xAxisVal: {
-		tickCount: number
+		ticks: number[]
 		niceMin: number
 		niceMax: number
 	},
 	yAxisVal: {
-		tickCount: number
+		ticks: number[]
 		niceMin: number
 		niceMax: number
 	},
@@ -22,33 +41,21 @@ export const computeGrid = (
 	yLabelPos: "left" | "right" | "none",
 	bottomLabelSpacing: number,
 ) => {
-	const xGridData = []
-	const yGridData = []
-	const xTickCount = xAxisVal.tickCount
-	const yTickCount = yAxisVal.tickCount
-	const xTickSpacing = (xAxisVal.niceMax - xAxisVal.niceMin) / xTickCount
-
+	const xGridData: XGridItem[] = []
+	const yGridData: YGridItem[] = []
+	const yTickCount = yAxisVal.ticks.length
 	const yTickSpacing = (yAxisVal.niceMax - yAxisVal.niceMin) / (yTickCount + 1)
 	const niceMinX = xAxisVal.niceMin
 	const niceMaxX = xAxisVal.niceMax
 	const niceMinY = yAxisVal.niceMin
 	const niceMaxY = yAxisVal.niceMax
-	let showLabel = false
 	const showYLabels = yLabelPos !== "none"
 
-	let i = 0
-	let j = 1
-	while (i <= xTickCount - 1) {
+	for (let i = 1; i < xAxisVal.ticks.length; i++) {
+		const tickVal = xAxisVal.ticks[i]
+		const showLabel = i % labelInterval === 0
 		const x1 = toSvgX(
-			niceMinX + xTickSpacing * i,
-			niceMinX,
-			xAxisVal.niceMax,
-			chartWidth - bottomLabelSpacing,
-			paddingX,
-		)
-
-		const x2 = toSvgX(
-			niceMinX + xTickSpacing * i,
+			tickVal,
 			niceMinX,
 			niceMaxX,
 			chartWidth - bottomLabelSpacing,
@@ -56,28 +63,26 @@ export const computeGrid = (
 		)
 		const y1 = toSvgY(niceMinY, niceMinY, niceMaxY, chartHeight, paddingY)
 		const y2 = toSvgY(niceMaxY, niceMinY, niceMaxY, chartHeight, paddingY)
-		const val = Math.round(niceMinX + xTickSpacing * i)
 		const labelX = x1 + bottomLabelSpacing
-		const labelY = y1
-		if (i % labelInterval === 0) {
-			showLabel = true
-		}
 		xGridData.push({
 			x1: x1 + bottomLabelSpacing,
-			x2: x2 + bottomLabelSpacing,
+			x2: x1 + bottomLabelSpacing,
 			y1: y1,
 			y2: y2,
-			val: val,
+			val: tickVal,
 			yVal: y1,
-			showLabels: showXLabels,
+			showLabels: showLabel && showXLabels,
 			labelX: labelX,
-			labelY: labelY,
+			labelY: y1,
 		})
-		showLabel = false
-		i++
+		console.log(
+			"grid niceMax:",
+			xAxisVal.niceMax,
+			new Date(xAxisVal.niceMax).toLocaleDateString(),
+		)
 	}
 
-	while (j <= yTickCount) {
+	for (let j = 1; j <= yTickCount; j++) {
 		const x1 = toSvgX(niceMinX, niceMinX, niceMaxX, chartWidth, paddingX)
 		const x2 = toSvgX(niceMaxX, niceMinX, niceMaxX, chartWidth, paddingX)
 		const y1 = toSvgY(
@@ -87,20 +92,10 @@ export const computeGrid = (
 			chartHeight,
 			paddingY,
 		)
-		const y2 = toSvgY(
-			niceMinY + yTickSpacing * j,
-			niceMinY,
-			niceMaxY,
-			chartHeight,
-			paddingY,
-		)
+		const y2 = y1
 		const val = Math.round(yAxisVal.niceMin + yTickSpacing * j)
-		let labelX = x1 - fontSize
-		let labelAnchor = "end" as "start" | "end"
-		if (yLabelPos === "right") {
-			labelX = x2 + fontSize
-			labelAnchor = "start"
-		}
+		const labelX = yLabelPos === "right" ? x2 + fontSize : x1 - fontSize
+		const labelAnchor: "start" | "end" = yLabelPos === "right" ? "start" : "end"
 		const labelY = y1
 		yGridData.push({
 			x1: x1,
@@ -113,7 +108,6 @@ export const computeGrid = (
 			labelAnchor: labelAnchor,
 			showLabels: showYLabels,
 		})
-		j++
 	}
 
 	const xAxisY = toSvgY(
@@ -135,9 +129,22 @@ export const computeGrid = (
 	return { xGridData, yGridData, xAxisY, yAxisX }
 }
 
+/**
+ * Derives the min/max bounds for both axes and detects whether the x-axis contains Date values.
+ *
+ * Used to establish the data range.
+ * Returns zeroes for all bounds if `data` is empty.
+ *
+ * @param data - Array of `{ x, y }` pairs. `x` can be a number or a Date object.
+ * @returns Min and max values for both axes, and whether the x-axis is date-based.
+ */
+
 export const calculateGridValues = (
 	data: { x: number | Date; y: number }[],
 ) => {
+	if (data.length === 0) {
+		return { maxX: 0, minX: 0, maxY: 0, minY: 0, isDate: false }
+	}
 	const isDate = data[0]?.x instanceof Date
 	const xValues = data.map((obj) => {
 		return obj.x.valueOf()
