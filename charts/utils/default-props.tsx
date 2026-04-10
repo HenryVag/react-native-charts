@@ -34,6 +34,13 @@ export const ExampleLegend = ({ data }: ExampleLegendProps) => {
 }
 
 //Label prop for linechart, used as default
+type LineChartLabelProps = {
+	top: string | number
+	bottom?: string | number
+	x: number
+	y: number
+	fontSize: number
+}
 
 export const LineChartLabel = ({
 	top,
@@ -41,24 +48,39 @@ export const LineChartLabel = ({
 	x,
 	y,
 	fontSize,
-}: {
-	top: string | number
-	bottom: string | number
-	x: number
-	y: number
-	fontSize: number
-}) => {
+}: LineChartLabelProps) => {
+	const font = "Poppins_400Regular"
+
 	return (
-		<G transform={`translate(${x}, ${y})`}>
-			<SVGText dy={fontSize} textAnchor="middle" fontSize={fontSize}>
+		<G transform={`translate(${x}, ${y + fontSize})`}>
+			<SVGText
+				dy={fontSize}
+				textAnchor="middle"
+				fontSize={fontSize}
+				fontFamily={font}
+			>
 				{top}
 			</SVGText>
-			<SVGText dy={fontSize * 2} textAnchor="middle" fontSize={fontSize}>
-				-
-			</SVGText>
-			<SVGText y={fontSize * 3} textAnchor="middle" fontSize={fontSize}>
-				{bottom}
-			</SVGText>
+			{bottom && (
+				<>
+					<SVGText
+						dy={fontSize * 2}
+						textAnchor="middle"
+						fontSize={fontSize}
+						fontFamily={font}
+					>
+						-
+					</SVGText>
+					<SVGText
+						y={fontSize * 3}
+						textAnchor="middle"
+						fontSize={fontSize}
+						fontFamily={font}
+					>
+						{bottom}
+					</SVGText>
+				</>
+			)}
 		</G>
 	)
 }
