@@ -20,9 +20,9 @@ export const calculateTicks = (
 	minPoint: number,
 	maxPoint: number,
 	isDate: boolean,
-	interval?: "day" | "week" | "month" | "year",
-): { tickCount: number; niceMin: number; niceMax: number } => {
-	if (isDate && interval) {
+	dateInterval?: "day" | "week" | "month" | "year",
+) => {
+	if (isDate && dateInterval) {
 		const intervalLookup = {
 			// Note: month and year are approximations
 			day: DAY_IN_MS,
@@ -30,17 +30,59 @@ export const calculateTicks = (
 			month: DAY_IN_MS * 30,
 			year: DAY_IN_MS * 365,
 		}
-		const niceMin = niceMinDate(minPoint)
-		const niceMax = niceMaxDate(maxPoint)
+		const niceMin = niceMinDate(minPoint, dateInterval)
+		const niceMax = niceMaxDate(maxPoint, dateInterval)
 		const range = niceMax - niceMin
-		const tickCount = Math.round(range / intervalLookup[interval])
-		return { tickCount, niceMin, niceMax }
+		const tickCount = Math.round(range / intervalLookup[dateInterval])
+		const ticks: number[] = []
+		const startDate = new Date(niceMin)
+
+		if (dateInterval === "year") {
+			for (let i = 0; i < tickCount; i++) {
+				const tickDate = new Date(startDate.getFullYear() + i, 0, 1)
+				ticks.push(tickDate.valueOf())
+			}
+			return { ticks, niceMin, niceMax }
+		}
+
+		if (dateInterval === "month") {
+			for (let i = 0; i < tickCount; i++) {
+				const tickDate = new Date(
+					startDate.getFullYear(),
+					startDate.getMonth() + i,
+					1,
+				)
+				ticks.push(tickDate.valueOf())
+			}
+			return { ticks, niceMin, niceMax }
+		}
+
+		if (dateInterval === "week") {
+			for (let i = 0; i < tickCount; i++) {
+				ticks.push(niceMin + DAY_IN_MS * 7 * i)
+			}
+			console.log(new Date(niceMin))
+			return { ticks, niceMin, niceMax }
+		}
+
+		if (dateInterval === "day") {
+			for (let i = 0; i < tickCount; i++) {
+				ticks.push(niceMin + DAY_IN_MS * i)
+			}
+			return { ticks, niceMin, niceMax }
+		}
 	}
+
 	const range = niceNum(maxPoint - minPoint, true)
 	const tickSpacing = niceNum(range / (maxTicks - 1), true)
 	const niceMin = Math.floor(minPoint / tickSpacing) * tickSpacing
 	const niceMax = Math.ceil(maxPoint / tickSpacing) * tickSpacing
 	const tickCount = Math.round((niceMax - niceMin) / tickSpacing)
 
-	return { tickCount, niceMin, niceMax }
+	const ticks: number[] = []
+	for (let i = 0; i < tickCount; i++) {
+		ticks.push(niceMin + tickSpacing * i)
+	}
+
+	return { ticks, niceMin, niceMax }
 }
