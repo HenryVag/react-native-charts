@@ -75,11 +75,6 @@ export const computeGrid = (
 			labelX: labelX,
 			labelY: y1,
 		})
-		console.log(
-			"grid niceMax:",
-			xAxisVal.niceMax,
-			new Date(xAxisVal.niceMax).toLocaleDateString(),
-		)
 	}
 
 	for (let j = 1; j <= yTickCount; j++) {

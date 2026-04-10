@@ -339,7 +339,6 @@ const LineChart = ({
 			toolTipValueLabel.length,
 		],
 	)
-	console.log(paddingY)
 	//"Early" returns
 	if (dimensions.height === 0 || dimensions.width === 0) {
 		return (

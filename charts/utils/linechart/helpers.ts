@@ -48,7 +48,6 @@ export const niceMinDate = (
 			dt.getMonth(),
 			dt.getDate() - daysToMonday,
 		)
-		console.log(monday)
 		return monday.valueOf()
 	}
 

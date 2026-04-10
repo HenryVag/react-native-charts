@@ -110,7 +110,6 @@ export const computeAxes = (
 		labelAnchor: "middle" as LabelAnchorType,
 		showAxis: showXAxis,
 	}
-	console.log("nicemin", new Date(xAxisVal.niceMin))
 
 	const topAxis = {
 		x1: svgMinX,

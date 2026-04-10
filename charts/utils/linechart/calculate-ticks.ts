@@ -61,7 +61,6 @@ export const calculateTicks = (
 			for (let i = 0; i < tickCount; i++) {
 				ticks.push(niceMin + DAY_IN_MS * 7 * i)
 			}
-			console.log(new Date(niceMin))
 			return { ticks, niceMin, niceMax }
 		}
 
