@@ -1,58 +1,41 @@
-import { ColorValue } from "react-native"
+import type { ColorValue } from "react-native"
 import { G, Line, Text as SVGText } from "react-native-svg"
-import { LineChartLabel } from "../utils/default-props"
-import { getLabelData, msToDate, niceMaxDate } from "../utils/linechart/helpers"
-import { LabelData } from "./linechart"
+import { getLabelData } from "@/charts/utils/linechart/helpers"
+import type {
+	AxisLabelData,
+	LabelData,
+	XAxisDataItem,
+	YAxisDataItem,
+} from "@/charts/utils/linechart/types"
+
+/**
+ * Renders the axis lines and labels for a line chart as SVG elements.
+ *
+ * Intended to be composed inside a parent `Svg` element — not used standalone.
+ * Supports optional custom label rendering via `labelComponent` for both x and y axes.
+ * If `labelComponent` is not provided, x-axis labels are not rendered.
+ *
+ * @param xAxisData - Positioned line and label data for each x-axis line.
+ * @param yAxisData - Positioned line and label data for each y-axis line.
+ * @param bottomLabelData - Position and visibility data for the bottom axis label.
+ * @param topLabelData - Position and visibility data for the top axis label.
+ * @param fontSize - Scaled font size used for all axis labels.
+ * @param hasDates - Whether the x-axis represents Date values. Passed to `labelComponent` via `getLabelData`.
+ * @param strokeWidth - Stroke width of the axis lines.
+ * @param opacity - Opacity of the axis lines.
+ * @param xAxisStroke - Colour of the x-axis lines.
+ * @param yAxisStroke - Colour of the y-axis lines.
+ * @param labelFont - Font family applied to all axis labels.
+ * @param topLabel - Text rendered above the y-axis, e.g. a unit descriptor `"kg"`.
+ * @param bottomLabel - Label data passed to `labelComponent` for the bottom x-axis label.
+ * @param labelComponent - Optional render function for custom axis labels. Receives label data, x/y position, and font size.
+ */
 
 type ChartAxesProps = {
-	paddingX: number
-	paddingY: number
-	chartHeight: number
-	chartWidth: number
-	xAxisData: {
-		x1: number
-		x2: number
-		y1: number
-		y2: number
-		maxLabel: number
-		minLabel: number
-		maxLabelX: number
-		maxLabelY: number
-		minLabelX: number
-		minLabelY: number
-		showLabel: boolean
-		labelAnchor: "start" | "end" | "middle"
-		showAxis: boolean
-	}[]
-	yAxisData: {
-		x1: number
-		x2: number
-		y1: number
-		y2: number
-		maxLabel: string
-		minLabel: string
-		maxLabelX: number
-		maxLabelY: number
-		minLabelX: number
-		minLabelY: number
-		showLabel: boolean
-		labelAnchor: "start" | "end" | "middle"
-		showAxis: boolean
-	}[]
-	bottomLabelData: {
-		x: number
-		y: number
-		showLabel: boolean
-		labelAnchor: "start" | "end" | "middle"
-		label: string
-	}
-	topLabelData: {
-		x: number
-		y: number
-		showLabel: boolean
-		labelAnchor: "start" | "end" | "middle"
-		label: string
-	}
+	xAxisData: XAxisDataItem[]
+	yAxisData: YAxisDataItem[]
+	bottomLabelData: AxisLabelData
+	topLabelData: AxisLabelData
 	fontSize: number
 	hasDates: boolean
 	strokeWidth: number
@@ -61,7 +44,7 @@ type ChartAxesProps = {
 	yAxisStroke: ColorValue
 	labelFont: string | undefined
 	topLabel: string
-	bottomLabel: string
+	bottomLabel: LabelData
 	labelComponent?: (
 		label: LabelData,
 		x: number,
@@ -86,11 +69,12 @@ export const ChartAxes = ({
 	bottomLabel,
 	labelComponent,
 }: ChartAxesProps) => {
-	console.log(bottomLabelData)
 	return (
 		<G>
 			{yAxisData.map((axis, i) => (
-				<>
+				//Using i as key since the data is pre computed and is not reordered
+
+				<G key={i}>
 					{axis.showAxis && (
 						<Line
 							x1={axis.x1}
@@ -103,31 +87,33 @@ export const ChartAxes = ({
 						/>
 					)}
 					{axis.showLabel && (
-						<SVGText
-							x={axis.minLabelX}
-							y={axis.minLabelY}
-							fontSize={fontSize}
-							textAnchor={axis.labelAnchor}
-							fontFamily={labelFont}
-						>
-							{axis.minLabel}
-						</SVGText>
+						<>
+							<SVGText
+								x={axis.minLabelX}
+								y={axis.minLabelY}
+								fontSize={fontSize}
+								textAnchor={axis.labelAnchor}
+								fontFamily={labelFont}
+							>
+								{axis.minLabel}
+							</SVGText>
+
+							<SVGText
+								x={axis.maxLabelX}
+								y={axis.maxLabelY}
+								fontSize={fontSize}
+								textAnchor={axis.labelAnchor}
+								fontFamily={labelFont}
+							>
+								{axis.maxLabel}
+							</SVGText>
+						</>
 					)}
-					{axis.showLabel && (
-						<SVGText
-							x={axis.maxLabelX}
-							y={axis.maxLabelY}
-							fontSize={fontSize}
-							textAnchor={axis.labelAnchor}
-							fontFamily={labelFont}
-						>
-							{axis.maxLabel}
-						</SVGText>
-					)}
-				</>
+				</G>
 			))}
 			{xAxisData.map((axis, i) => (
-				<>
+				//Using i as key since the data is pre computed and is not reordered
+				<G key={i}>
 					{axis.showAxis && (
 						<Line
 							x1={axis.x1}
@@ -139,23 +125,24 @@ export const ChartAxes = ({
 							opacity={opacity}
 						/>
 					)}
-					{labelComponent &&
-						axis.showLabel &&
-						labelComponent(
-							getLabelData(axis.minLabel, hasDates),
-							axis.minLabelX,
-							axis.minLabelY,
-							fontSize,
-						)}
-					{labelComponent &&
-						axis.showLabel &&
-						labelComponent(
-							getLabelData(axis.maxLabel, hasDates),
-							axis.maxLabelX,
-							axis.maxLabelY,
-							fontSize,
-						)}
-				</>
+					{labelComponent && axis.showLabel && (
+						<>
+							{labelComponent(
+								getLabelData(axis.minLabel, hasDates),
+								axis.minLabelX,
+								axis.minLabelY,
+								fontSize,
+							)}
+
+							{labelComponent(
+								getLabelData(axis.maxLabel, hasDates),
+								axis.maxLabelX,
+								axis.maxLabelY,
+								fontSize,
+							)}
+						</>
+					)}
+				</G>
 			))}
 
 			{topLabelData.showLabel && (
@@ -169,16 +156,14 @@ export const ChartAxes = ({
 					{topLabel}
 				</SVGText>
 			)}
-			{bottomLabelData.showLabel && (
-				<SVGText
-					x={bottomLabelData.x}
-					y={bottomLabelData.y}
-					fontSize={fontSize}
-					fontFamily={labelFont}
-				>
-					{bottomLabel}
-				</SVGText>
-			)}
+			{labelComponent &&
+				bottomLabelData.showLabel &&
+				labelComponent(
+					bottomLabel,
+					bottomLabelData.x + fontSize,
+					bottomLabelData.y - fontSize * 2,
+					fontSize,
+				)}
 		</G>
 	)
 }

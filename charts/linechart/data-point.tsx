@@ -1,5 +1,5 @@
-import { ColorValue, Pressable, Text } from "react-native"
-import Svg, { Circle, G } from "react-native-svg"
+import type { ColorValue } from "react-native"
+import { Circle } from "react-native-svg"
 
 type DataPointProps = {
 	cx: number
@@ -11,7 +11,20 @@ type DataPointProps = {
 	isVisible: boolean
 	onPress?: () => void
 }
-
+/**
+ * Renders a single interactive data point as an SVG circle.
+ *
+ * The circle is only rendered when `isVisible` is true — it is unmounted entirely rather than hidden.
+ *
+ * @param cx - The x coordinate of the circle center in SVG space.
+ * @param cy - The y coordinate of the circle center in SVG space.
+ * @param radius - The radius of the circle in SVG units.
+ * @param fill - Fill colour of the circle.
+ * @param stroke - Stroke colour of the circle border.
+ * @param strokeWidth - Width of the circle border.
+ * @param isVisible - Whether to render the circle.
+ * @param onPress - Optional callback fired when the circle is pressed.
+ */
 export const DataPoint = ({
 	cx,
 	cy,
@@ -22,22 +35,18 @@ export const DataPoint = ({
 	isVisible,
 	onPress,
 }: DataPointProps) => {
+	if (!isVisible) {
+		return null
+	}
 	return (
-		<>
-			{isVisible && (
-				<Circle
-					fill={fill}
-					fillOpacity={"100%"}
-					cx={cx}
-					cy={cy}
-					r={radius}
-					stroke={stroke}
-					strokeWidth={strokeWidth}
-					onPress={onPress}
-				/>
-			)}
-		</>
+		<Circle
+			fill={fill}
+			cx={cx}
+			cy={cy}
+			r={radius}
+			stroke={stroke}
+			strokeWidth={strokeWidth}
+			onPress={onPress}
+		/>
 	)
 }
-
-export default DataPoint

@@ -1,20 +1,21 @@
-import { useMemo, useState } from "react"
-import { ColorValue, View } from "react-native"
-import Svg, { G, Polyline, Rect } from "react-native-svg"
+import { memo, useMemo, useState } from "react"
+import { type ColorValue, View } from "react-native"
+import Svg, { Polyline, Rect } from "react-native-svg"
+import { calculateTicks } from "../utils/linechart/calculate-ticks"
 import { computeAxes } from "../utils/linechart/compute-axes"
 import { computeDataPoints } from "../utils/linechart/compute-datapoints"
 import {
 	calculateGridValues,
 	computeGrid,
 } from "../utils/linechart/compute-grid"
-import { calculateTicks } from "../utils/linechart/compute-linechart"
+import { computeToolTip } from "../utils/linechart/compute-tooltip"
+import type { LabelData } from "../utils/linechart/types"
 import { validateData } from "../utils/linechart/validate-data"
 import { ChartAxes } from "./chart-axes"
 import { ChartGrid } from "./chart-grid"
 import { ToolTip } from "./chart-tooltip"
-import DataPoint from "./data-point"
+import { DataPoint } from "./data-point"
 
-export type LabelData = Record<string, string>
 type LineChartProps = {
 	data: { x: number | Date; y: number }[]
 	xTickCountTarget?: number // 2- 20,
@@ -39,7 +40,7 @@ type LineChartProps = {
 	dataPointFill?: string
 	dataPointRadius?: number
 	dataPointStroke?: ColorValue
-	dataPointStrokeWidth: number
+	dataPointStrokeWidth?: number
 	showDataPoints?: boolean
 	lineStrokeWidth?: number
 	lineStroke?: string
@@ -49,7 +50,7 @@ type LineChartProps = {
 	toolTipTitleFont?: string
 	accessibilityLabel?: string
 	topLabel: string
-	bottomLabel: string
+	bottomLabel?: LabelData
 	labelProp?: (
 		label: LabelData,
 		x: number,
@@ -57,11 +58,52 @@ type LineChartProps = {
 		fontSize: number,
 	) => React.ReactNode
 }
+//Layout scaling constants (empirically discovered)
+const PADDING_X_SCALE = 0.1
+const PADDING_X_MULTIPLIER = 1.1
+const PADDING_Y_SCALE = 0.2
+const PADDING_Y_MULTIPLIER = 1.5
+const BOTTOM_LABEL_SPACING_SCALE = 0.111
+const FONT_SIZE_BASE_HEIGHT = 225
+const FONT_SIZE_SCALE = 10
+const STROKE_WIDTH_SCALE = 1000
+const POLYLINE_LEAD_OFFSET = 1.5
 
 /**
+ * A customisable line chart for React Native built on react-native-svg.
  *
- * @param TickCountTarget Number of ticks the chart tries to generate on the axis (does not work with dates)
+ * Accepts numeric or Date values on the x-axis and numeric values on the y-axis.
+ * Supports interactive tooltips, configurable grid lines, axis labels, and data points.
  *
+ * @example
+ * <LineChart
+ *   data={[{ x: new Date("2024-01-01"), y: 42 }]}
+ *   toolTipTitle="Weight"
+ *   toolTipValueLabel="kg"
+ *   topLabel="kg"
+ *   bottomLabel={{}}
+ * />
+ *
+ * @param data - Array of `{ x, y }` pairs. `x` can be a number or a Date object.
+ * @param xTickCountTarget - Approximate number of ticks on the x-axis. Clamped to [2, 20]. Has no effect when `x` values are Dates — use `dateTickInterval` instead.
+ * @param yTickCountTarget - Approximate number of ticks on the y-axis. Clamped to [2, 20].
+ * @param dateTickInterval - Tick interval used when `x` values are Dates. One of `"day" | "week" | "month" | "year"`.
+ * @param labelFontSize - Base font size for axis labels. Scaled proportionally to the chart height at runtime.
+ * @param showGridX - Whether to render vertical grid lines.
+ * @param showGridY - Whether to render horizontal grid lines.
+ * @param showXLabels - Whether to render labels along the x-axis.
+ * @param showYLabels - Which side to render y-axis labels on, or `"none"` to hide them.
+ * @param showXAxis - Whether to render the x-axis lines (tob and bottom).
+ * @param showYAxis - Whether to render the y-axis lines (left and right).
+ * @param showDataPoints - Whether to render individual data point markers.
+ * @param lineStroke - Colour of the connecting line.
+ * @param lineStrokeWidth - Base stroke width of the connecting line. Scaled to chart height at runtime.
+ * @param toolTipTitle - Title text shown in the tooltip describing the x value when a data point is pressed.
+ * @param toolTipValueLabel - Label for the value describing the y value inside the tooltip.
+ * @param topLabel - Unit or descriptor rendered above the y-axis (e.g. `"kg"`).
+ * @param bottomLabel - Label data rendered before the x-axis values. Shape must match `LabelData`.
+ * @param labelProp - Optional render function for fully custom axis labels. Receives the label data, x/y position, and font size.
+ * @param accessibilityLabel - Accessible description of the chart for screen readers.
  */
 const LineChart = ({
 	data,
@@ -97,7 +139,7 @@ const LineChart = ({
 	toolTipTitleFont,
 	accessibilityLabel = "Line chart",
 	topLabel = "",
-	bottomLabel = "",
+	bottomLabel = {},
 	labelProp,
 }: LineChartProps) => {
 	//State
@@ -115,21 +157,28 @@ const LineChart = ({
 	const hasDates = validatedData?.hasDates ?? false
 
 	//Layout
-	const paddingX = (dimensions.width * 0.1 + labelFontSize) * 1.1
-	const paddingY = (dimensions.height * 0.1 + labelFontSize) * 1.5
+	const paddingX =
+		(dimensions.width * PADDING_X_SCALE + labelFontSize) * PADDING_X_MULTIPLIER
+	const paddingY =
+		(dimensions.height * PADDING_Y_SCALE + labelFontSize) * PADDING_Y_MULTIPLIER
 	const chartWidth = dimensions.width - paddingX * 2
 	const chartHeight = dimensions.height - paddingY * 2
-	const bottomLabelSpacing = chartWidth * 0.111
+	const bottomLabelSpacing = chartWidth * BOTTOM_LABEL_SPACING_SCALE
 
 	//Scaling
-	const scalableLabelFontSize = labelFontSize * (10 / 225) * dimensions.height
+	const scalableLabelFontSize =
+		labelFontSize *
+		(FONT_SIZE_SCALE / FONT_SIZE_BASE_HEIGHT) *
+		dimensions.height
 	const scalableToolTipFontSize =
-		toolTipFontSize * (10 / 225) * dimensions.height
+		toolTipFontSize *
+		(FONT_SIZE_SCALE / FONT_SIZE_BASE_HEIGHT) *
+		dimensions.height
 	const scalableStrokeWidth =
-		(strokeWidth / 1000) *
+		(strokeWidth / STROKE_WIDTH_SCALE) *
 		(dimensions.height - (dimensions.height * 0.1 + labelFontSize) * 1.5)
 	const scalableLineStrokeWidth =
-		(lineStrokeWidth / 1000) *
+		(lineStrokeWidth / STROKE_WIDTH_SCALE) *
 		(dimensions.height - (dimensions.height * 0.1 + labelFontSize) * 1.5)
 	const scalableRadius = dataPointRadius * chartHeight * 0.05
 	const scalableDataPointStrokeWidth =
@@ -255,16 +304,42 @@ const LineChart = ({
 		],
 	)
 
-	let polyLineStr = ""
-	dataPoints.forEach((point, i) => {
-		if (i === 0) {
-			polyLineStr = `${point.cx - bottomLabelSpacing / 1.5} ${point.cy} `
-		}
-		const x = point.cx
-		const y = point.cy
-		polyLineStr = polyLineStr + `${x},${y} `
-	})
+	const polyLineStr = useMemo(() => {
+		let str = ""
 
+		dataPoints.forEach((point, i) => {
+			if (i === 0) {
+				str += `${point.cx - bottomLabelSpacing / POLYLINE_LEAD_OFFSET} ${point.cy} `
+			}
+			str += `${point.cx},${point.cy} `
+		})
+		return str
+	}, [dataPoints, bottomLabelSpacing])
+	const toolTipDateInterval = dateTickInterval
+
+	const toolTipData = useMemo(
+		() =>
+			computeToolTip(
+				selectedDataPoint,
+				scalableToolTipFontSize,
+				scalableRadius,
+				chartHeight,
+				toolTipTitle.length,
+				toolTipValueLabel.length,
+				chartAxisValues.isDate,
+				toolTipDateInterval,
+				paddingY,
+			),
+		[
+			selectedDataPoint,
+			scalableToolTipFontSize,
+			scalableRadius,
+			chartHeight,
+			toolTipTitle.length,
+			toolTipValueLabel.length,
+		],
+	)
+	console.log(paddingY)
 	//"Early" returns
 	if (dimensions.height === 0 || dimensions.width === 0) {
 		return (
@@ -277,7 +352,6 @@ const LineChart = ({
 	if (validatedData === null) {
 		return null
 	}
-
 	return (
 		<View
 			style={{ flex: 1 }}
@@ -308,10 +382,6 @@ const LineChart = ({
 					labelFont={labelFont}
 				/>
 				<ChartAxes
-					paddingX={paddingX}
-					paddingY={paddingY}
-					chartHeight={chartHeight}
-					chartWidth={chartWidth}
 					xAxisData={xAxisData}
 					yAxisData={yAxisData}
 					fontSize={scalableLabelFontSize}
@@ -345,32 +415,28 @@ const LineChart = ({
 					}}
 				/>
 				{dataPoints.map((point, i) => (
-					<>
-						<DataPoint
-							cx={point.cx}
-							cy={point.cy}
-							fill={dataPointFill}
-							radius={scalableRadius}
-							stroke={dataPointStroke}
-							strokeWidth={scalableDataPointStrokeWidth}
-							isVisible={showDataPoints}
-							onPress={() =>
-								setSelectedDataPoint({
-									cx: point.cx,
-									cy: point.cy,
-									x: point.x,
-									y: point.y,
-								})
-							}
-						/>
-					</>
+					<DataPoint
+						cx={point.cx}
+						cy={point.cy}
+						fill={dataPointFill}
+						radius={scalableRadius}
+						stroke={dataPointStroke}
+						strokeWidth={scalableDataPointStrokeWidth}
+						isVisible={showDataPoints}
+						onPress={() =>
+							setSelectedDataPoint({
+								cx: point.cx,
+								cy: point.cy,
+								x: point.x,
+								y: point.y,
+							})
+						}
+						key={point.x}
+					/>
 				))}
 				{selectedDataPoint && (
 					<ToolTip
-						data={selectedDataPoint}
-						chartHeight={chartHeight}
-						chartWidth={chartWidth}
-						dataPointRadius={scalableRadius}
+						toolTipData={toolTipData}
 						labelFont={labelFont}
 						fontSize={scalableToolTipFontSize}
 						toolTipTitleFont={toolTipTitleFont}
@@ -383,4 +449,4 @@ const LineChart = ({
 	)
 }
 
-export default LineChart
+export default memo(LineChart)
