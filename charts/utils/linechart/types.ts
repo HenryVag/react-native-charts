@@ -1,4 +1,8 @@
+// Shared types used across chart computation and rendering utilities
+
 export type LabelData = Record<string, string>
+
+export type LabelAnchor = "start" | "end" | "middle"
 
 export type YGridItem = {
 	x1: number
@@ -8,7 +12,7 @@ export type YGridItem = {
 	labelX: number
 	labelY: number
 	val: number
-	labelAnchor: "start" | "end"
+	labelAnchor: LabelAnchor
 	showLabels: boolean
 }
 
@@ -36,7 +40,7 @@ export type XAxisDataItem = {
 	minLabelX: number
 	minLabelY: number
 	showLabel: boolean
-	labelAnchor: "start" | "end" | "middle"
+	labelAnchor: LabelAnchor
 	showAxis: boolean
 }
 
@@ -52,7 +56,7 @@ export type YAxisDataItem = {
 	minLabelX: number
 	minLabelY: number
 	showLabel: boolean
-	labelAnchor: "start" | "end" | "middle"
+	labelAnchor: LabelAnchor
 	showAxis: boolean
 }
 
@@ -60,7 +64,7 @@ export type AxisLabelData = {
 	x: number
 	y: number
 	showLabel: boolean
-	labelAnchor: "start" | "end" | "middle"
+	labelAnchor: LabelAnchor
 }
 
 export type AxisValueData = {
