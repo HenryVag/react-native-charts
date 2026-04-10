@@ -34,6 +34,19 @@ export const niceNum = (range: number, round: boolean): number => {
 	return niceFraction * Math.pow(10, exponent)
 }
 
+/**
+ * Snaps a timestamp down to the nearest clean boundary for the given interval.
+ *
+ * Uses local time throughout to avoid UTC offset issues.
+ * - `week` — snaps back to the nearest Monday
+ * - `month` — snaps back to the 1st of the current month
+ * - `year` — snaps back to January 1st of the current year
+ * - `day` — snaps back to local midnight
+ *
+ * @param date - Unix timestamp in milliseconds.
+ * @param interval - The tick interval determining the boundary type.
+ * @returns A timestamp representing the start of the interval period.
+ */
 export const niceMinDate = (
 	date: number,
 	interval: "day" | "week" | "month" | "year",
@@ -62,6 +75,19 @@ export const niceMinDate = (
 	return new Date(dt.getFullYear(), dt.getMonth(), 1).valueOf()
 }
 
+/**
+ * Snaps a timestamp forward to the next clean boundary for the given interval.
+ *
+ * Uses local time throughout to avoid UTC offset issues.
+ * - `week` — snaps forward to the next Monday
+ * - `month` — snaps forward to the 1st of the next month
+ * - `year` — snaps forward to January 1st of the next year
+ * - `day` — snaps forward to the next local midnight
+ *
+ * @param date - Unix timestamp in milliseconds.
+ * @param interval - The tick interval determining the boundary type.
+ * @returns A timestamp representing the start of the next interval period.
+ */
 export const niceMaxDate = (
 	date: number,
 	interval: "day" | "week" | "month" | "year",
@@ -90,6 +116,18 @@ export const niceMaxDate = (
 	return new Date(dt.getFullYear(), dt.getMonth() + 1, 1).valueOf()
 }
 
+/**
+ * Converts a timestamp to a human-readable date string.
+ *
+ * @param ms -  Timestamp in milliseconds.
+ * @param t - The format to return.
+ * `"day"` returns the day of the month (e.g. `"7"`).
+ * `"week"` returns the week number (e.g. `"3"`).
+ * `"month"` returns the full month name in Finnish (e.g. `"Tammikuu"`).
+ * `"month-num"` returns the zero-padded month number (e.g. `"03"`).
+ * `"year"` returns the four digit year (e.g. `"2024"`).
+ * @returns A formatted date string.
+ */
 export const msToDate = (
 	ms: number,
 	t: "day" | "week" | "month" | "year" | "month-num",
@@ -128,7 +166,16 @@ export const msToDate = (
 			return `${dt.getFullYear()}`
 	}
 }
-
+/**
+ * Converts a data x value to its SVG x coordinate.
+ *
+ * @param x - The data value to convert. Accepts a number or Date object.
+ * @param niceMin - The minimum value of the axis scale.
+ * @param niceMax - The maximum value of the axis scale.
+ * @param chartWidth - The renderable width of the chart excluding padding.
+ * @param padding - The horizontal padding offset.
+ * @returns SVG x coordinate.
+ */
 export const toSvgX = (
 	x: number | Date,
 	niceMin: number,
@@ -141,6 +188,20 @@ export const toSvgX = (
 	return posX
 }
 
+/**
+ * Converts a data y value to its SVG y coordinate.
+ *
+ * SVG y increases downward, so the formula inverts the axis
+ * to map higher data values to lower SVG y positions.
+ *
+ * @param y - The data value to convert.
+ * @param niceMin - The minimum value of the axis scale.
+ * @param niceMax - The maximum value of the axis scale.
+ * @param chartHeight - The renderable height of the chart excluding padding.
+ * @param padding - The vertical padding offset.
+ * @returns SVG y coordinate.
+ */
+
 export const toSvgY = (
 	y: number,
 	niceMin: number,
@@ -152,7 +213,14 @@ export const toSvgY = (
 		((y - niceMin) / -(niceMax - niceMin)) * chartHeight + padding + chartHeight
 	return posY
 }
-
+/**
+ * Converts a timestamp in ms to a week number.
+ *
+ * Does not support leap years.
+ *
+ * @param ms - Timestamp in milliseconds.
+ * @returns The week number (1–52).
+ */
 export const getDateWeek = (ms: number): number => {
 	const date = new Date(ms)
 	const localDate = new Date(

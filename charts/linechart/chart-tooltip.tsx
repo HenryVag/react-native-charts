@@ -1,25 +1,40 @@
 import { G, Rect, Text as SVGText } from "react-native-svg"
-import { msToDate } from "@/charts/utils/linechart/helpers"
+
+type ToolTipData = {
+	toolTipX: number
+	toolTipY: number
+	toolTipWidth: number
+	toolTipHeight: number
+	toolTipTitleX: number
+	toolTipTitleY: number
+	toolTipLabelY: number
+	valueX: number | string
+	valueY: number | undefined
+}
 
 type ToolTipProps = {
-	toolTipData: {
-		toolTipX: number
-		toolTipY: number
-		toolTipWidth: number
-		toolTipHeight: number
-		toolTipTitleX: number
-		toolTipTitleY: number
-		toolTipLabelY: number
-		valueX: number | string
-		valueY: number | undefined
-	} | null
+	toolTipData: ToolTipData | null
 	fontSize: number
 	toolTipTitleFont?: string
 	labelFont: string | undefined
 	toolTipTitle: string
 	toolTipValueLabel: string
 }
+const TOOLTIP_TITLE_FONT_SCALE = 1.143
 
+/**
+ * Renders an interactive tooltip as SVG elements when a data point is pressed.
+ *
+ * Renders nothing when `toolTipData` is null. All positioning and sizing is
+ * pre-calculated by `computeToolTip` and passed in via `toolTipData`.
+ *
+ * @param toolTipData - Pre-calculated position and value data for the tooltip. Pass `null` to hide.
+ * @param fontSize - Base font size for the value label.
+ * @param toolTipTitleFont - Font family for the title row.
+ * @param labelFont - Font family for the value row.
+ * @param toolTipTitle - Label describing the x value (e.g. `"Week"`).
+ * @param toolTipValueLabel - Label describing the y value (e.g. `"kg"`).
+ */
 export const ToolTip = ({
 	toolTipData,
 	fontSize,
@@ -29,7 +44,7 @@ export const ToolTip = ({
 	toolTipValueLabel,
 }: ToolTipProps) => {
 	if (toolTipData === null) {
-		return
+		return null
 	}
 	const {
 		toolTipX,
@@ -46,7 +61,6 @@ export const ToolTip = ({
 	const title = `${toolTipTitle}: ${valueX}`
 	const label = `${toolTipValueLabel}: ${valueY}`
 
-	const toolTipLabelX = toolTipTitleX
 	return (
 		<G>
 			<Rect
@@ -62,14 +76,14 @@ export const ToolTip = ({
 				x={toolTipTitleX}
 				y={toolTipTitleY}
 				textAnchor="start"
-				fontSize={fontSize * 1.143}
+				fontSize={fontSize * TOOLTIP_TITLE_FONT_SCALE}
 				fontFamily={toolTipTitleFont}
 			>
 				{title}
 			</SVGText>
 
 			<SVGText
-				x={toolTipLabelX}
+				x={toolTipTitleX}
 				y={toolTipLabelY}
 				textAnchor="start"
 				fontSize={fontSize}
