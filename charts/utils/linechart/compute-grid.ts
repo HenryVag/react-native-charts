@@ -1,4 +1,4 @@
-import { getDateWeek, toSvgX, toSvgY } from "@/charts/utils/linechart/helpers"
+import { toSvgX, toSvgY } from "@/charts/utils/linechart/helpers"
 import type { XGridItem, YGridItem } from "@/charts/utils/linechart/types"
 /**
  * Computes the grid line and label data for both axes of the chart.
